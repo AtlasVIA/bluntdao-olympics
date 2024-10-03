@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { Inter } from "next/font/google";
 import ErrorBoundary from "../components/bluntdao-olympics/common/ErrorBoundary";
 import Layout from "../components/bluntdao-olympics/layout/Layout";
@@ -10,13 +11,17 @@ export const metadata = {
   description: "Official website for the BluntDAO Olympics events and leaderboards",
 };
 
+const ThemeProviderWrapper = dynamic(() => import("../components/ThemeProviderWrapper"), { ssr: false });
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ErrorBoundary>
-          <Layout>{children}</Layout>
-        </ErrorBoundary>
+        <ThemeProviderWrapper>
+          <ErrorBoundary>
+            <Layout>{children}</Layout>
+          </ErrorBoundary>
+        </ThemeProviderWrapper>
       </body>
     </html>
   );
