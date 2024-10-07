@@ -4,42 +4,41 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { SwitchTheme } from "../../SwitchTheme";
 import { AnimatePresence, motion } from "framer-motion";
+import { FaChartBar, FaFire, FaHome, FaMedal, FaRunning, FaTrophy } from "react-icons/fa";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
-    { href: "/", label: "Home" },
-    { href: "/medal-tally", label: "Medal Tally" },
-    { href: "/country-leaderboard", label: "Country Leaderboard" },
-    { href: "/participant-stats", label: "Participant Stats" },
-    { href: "/consumption-stats", label: "Consumption Stats" },
-    { href: "/activity-data", label: "Activity Data" },
-    { href: "/top-participants", label: "Top Participants" },
-    { href: "/popular-activities", label: "Popular Activities" },
-    { href: "/live-leaderboards", label: "Live Leaderboards" },
+    { href: "/", label: "Home", icon: FaHome },
+    { href: "/medal-tally", label: "Medal Tally", icon: FaMedal },
+    { href: "/leaderboard", label: "Leaderboard", icon: FaTrophy },
+    { href: "/consumption-stats", label: "Consumption Stats", icon: FaChartBar },
+    { href: "/activity-data", label: "Activity Data", icon: FaRunning },
+    { href: "/popular-activities", label: "Popular Activities", icon: FaFire },
   ];
 
   return (
-    <header className="bg-weed-dark dark:bg-weed-light text-weed-light dark:text-weed-dark p-4 sticky top-0 z-50 shadow-md border-b-2 border-[rgb(var(--accent-green))]">
+    <header className="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 p-6 sticky top-0 z-50 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <Link
           href="/"
-          className="text-2xl font-bold text-weed-primary hover:text-weed-secondary transition-colors flex items-center"
+          className="text-2xl font-bold text-green-600 dark:text-green-300 hover:text-green-700 dark:hover:text-green-200 transition-colors flex items-center"
         >
           <span className="mr-2">🍁</span>
           BluntDAO Olympics
         </Link>
         <div className="flex items-center">
-          <nav className="hidden md:block mr-4">
+          <nav className="hidden lg:block mr-4">
             <ul className="flex flex-wrap justify-end space-x-2">
               {menuItems.map(item => (
                 <li key={item.href} className="my-1">
                   <Link
                     href={item.href}
-                    className="hover:text-weed-primary transition-colors py-2 px-3 rounded hover:bg-[rgba(var(--primary-green),0.1)] text-sm"
+                    className="flex items-center hover:bg-green-300 dark:hover:bg-green-700 transition-colors py-2 px-3 rounded text-sm"
                   >
-                    {item.label}
+                    <item.icon className="mr-2 text-lg" />
+                    <span>{item.label}</span>
                   </Link>
                 </li>
               ))}
@@ -47,7 +46,7 @@ const Header: React.FC = () => {
           </nav>
           <SwitchTheme className="mr-4" />
           <button
-            className="md:hidden text-weed-primary"
+            className="lg:hidden text-green-600 dark:text-green-300"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -66,7 +65,7 @@ const Header: React.FC = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.nav
-            className="md:hidden mt-4 bg-weed-dark dark:bg-weed-light rounded-lg shadow-lg border border-[rgba(var(--accent-green),0.5)]"
+            className="lg:hidden mt-4 bg-green-100 dark:bg-green-900 rounded-lg shadow-lg"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -77,10 +76,11 @@ const Header: React.FC = () => {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block py-2 px-4 hover:bg-[rgba(var(--primary-green),0.1)] hover:text-weed-primary rounded transition-colors"
+                    className="flex items-center py-2 px-4 hover:bg-green-200 dark:hover:bg-green-800 rounded transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    {item.label}
+                    <item.icon className="mr-3 text-xl" />
+                    <span>{item.label}</span>
                   </Link>
                 </li>
               ))}
