@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useState } from "react";
+import MedalTally from "../screens/MedalTally";
 import CountryLeaderboard from "./CountryLeaderboard";
 import LiveLeaderboards from "./LiveLeaderboards";
 import ParticipantStats from "./ParticipantStats";
@@ -14,6 +15,7 @@ const Leaderboard: React.FC = () => {
     { id: "participants", label: "Participant Stats", component: ParticipantStats },
     { id: "top", label: "Top Participants", component: TopParticipants },
     { id: "live", label: "Live Leaderboards", component: LiveLeaderboards },
+    { id: "medal", label: "Medal Tally", component: MedalTally },
   ];
 
   return (

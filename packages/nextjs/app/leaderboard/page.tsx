@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "BluntDAO Olympics Leaderboard",
-  description: "View the latest standings and statistics for the BluntDAO Olympics",
+  description: "View the latest standings, statistics, and medal tally for the BluntDAO Olympics",
 };
 
 export default function LeaderboardPage() {
