@@ -1,110 +1,99 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
-import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { SwitchTheme } from "./SwitchTheme";
+import { AnimatePresence, motion } from "framer-motion";
+import { FaChartBar, FaFire, FaHome, FaMedal, FaRunning, FaTrophy } from "react-icons/fa";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
-type HeaderMenuLink = {
-  label: string;
-  href: string;
-  icon?: React.ReactNode;
-};
+const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-export const menuLinks: HeaderMenuLink[] = [
-  {
-    label: "Home",
-    href: "/",
-  },
-  {
-    label: "Debug Contracts",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
-  },
-];
-
-export const HeaderMenuLinks = () => {
-  const pathname = usePathname();
+  const menuItems = [
+    { href: "/", label: "Home", icon: FaHome },
+    { href: "/medal-tally", label: "Medal Tally", icon: FaMedal },
+    { href: "/leaderboard", label: "Leaderboard", icon: FaTrophy },
+    { href: "/consumption-stats", label: "Consumption Stats", icon: FaChartBar },
+    { href: "/activity-data", label: "Activity Data", icon: FaRunning },
+    { href: "/popular-activities", label: "Popular Activities", icon: FaFire },
+  ];
 
   return (
-    <>
-      {menuLinks.map(({ label, href, icon }) => {
-        const isActive = pathname === href;
-        return (
-          <li key={href}>
-            <Link
-              href={href}
-              passHref
-              className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
-            >
-              {icon}
-              <span>{label}</span>
-            </Link>
-          </li>
-        );
-      })}
-    </>
-  );
-};
-
-/**
- * Site header
- */
-export const Header = () => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const burgerMenuRef = useRef<HTMLDivElement>(null);
-  useOutsideClick(
-    burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
-  );
-
-  return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
-      <div className="navbar-start w-auto lg:w-1/2">
-        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
-          <label
-            tabIndex={0}
-            className={`ml-1 btn btn-ghost ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
-            onClick={() => {
-              setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
-            }}
-          >
-            <Bars3Icon className="h-1/2" />
-          </label>
-          {isDrawerOpen && (
-            <ul
-              tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-              onClick={() => {
-                setIsDrawerOpen(false);
-              }}
-            >
-              <HeaderMenuLinks />
-            </ul>
-          )}
-        </div>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
-          <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
-            <span className="text-xs">Ethereum dev stack</span>
-          </div>
+    <header className="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 p-4 sticky top-0 z-50 shadow-md">
+      <div className="container mx-auto flex justify-between items-center">
+        <Link
+          href="/"
+          className="text-2xl font-bold text-green-600 dark:text-green-300 hover:text-green-700 dark:hover:text-green-200 transition-colors flex items-center"
+        >
+          <span className="mr-2">🍁</span>
+          BluntDAO Olympics
         </Link>
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
+        <div className="flex items-center space-x-4">
+          <nav className="hidden lg:block">
+            <ul className="flex flex-wrap justify-end space-x-2">
+              {menuItems.map(item => (
+                <li key={item.href} className="my-1">
+                  <Link
+                    href={item.href}
+                    className="flex items-center hover:bg-green-300 dark:hover:bg-green-700 transition-colors py-2 px-3 rounded text-sm"
+                  >
+                    <item.icon className="mr-2 text-lg" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="flex items-center space-x-2">
+            <RainbowKitCustomConnectButton />
+            <SwitchTheme />
+            <button
+              className="lg:hidden text-green-600 dark:text-green-300"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="navbar-end flex-grow mr-4">
-        <RainbowKitCustomConnectButton />
-        <FaucetButton />
-      </div>
-    </div>
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.nav
+            className="lg:hidden mt-4 bg-green-100 dark:bg-green-900 rounded-lg shadow-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ul className="flex flex-col space-y-2 p-4">
+              {menuItems.map(item => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="flex items-center py-2 px-4 hover:bg-green-200 dark:hover:bg-green-800 rounded transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <item.icon className="mr-3 text-xl" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </header>
   );
 };
+
+export default Header;
