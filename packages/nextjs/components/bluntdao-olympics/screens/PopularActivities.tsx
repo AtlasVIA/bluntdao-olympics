@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LeaderboardTable } from "../common";
+import { LeaderboardTable, PageContainer } from "../common";
 import { motion } from "framer-motion";
 
 const mockPopularActivities = [
@@ -14,10 +14,19 @@ const mockPopularActivities = [
 
 const PopularActivities: React.FC = () => {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <h1 className="text-4xl font-bold mb-8 text-center">Most Popular Sesh Activities</h1>
-      <LeaderboardTable data={mockPopularActivities} columns={["Rank", "Activity", "Participants"]} />
-    </motion.div>
+    <PageContainer
+      title="Most Popular Sesh Activities"
+      description="Discover the most engaging and popular activities in the Blunt Olympics, ranked by participant count."
+    >
+      <motion.div
+        className="card"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <LeaderboardTable data={mockPopularActivities} columns={["Rank", "Activity", "Participants"]} />
+      </motion.div>
+    </PageContainer>
   );
 };
 

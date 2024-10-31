@@ -2,8 +2,8 @@ import Leaderboard from "../../components/bluntdao-olympics/leaderboard/Leaderbo
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "BluntDAO Olympics Leaderboard",
-  description: "View the latest standings, statistics, and medal tally for the BluntDAO Olympics",
+  title: "Blunt Olympics Leaderboard",
+  description: "View the latest standings, statistics, and medal tally for the Blunt Olympics",
 };
 
 export default function LeaderboardPage() {

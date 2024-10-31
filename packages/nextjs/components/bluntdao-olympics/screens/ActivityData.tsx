@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LeaderboardTable } from "../common";
+import { LeaderboardTable, PageContainer } from "../common";
 import { motion } from "framer-motion";
 
 const mockActivityData = [
@@ -14,10 +14,19 @@ const mockActivityData = [
 
 const ActivityData: React.FC = () => {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <h1 className="text-4xl font-bold mb-8 text-center">Activity Data</h1>
-      <LeaderboardTable data={mockActivityData} columns={["Rank", "Event", "Top Score/Performance", "Participant"]} />
-    </motion.div>
+    <PageContainer
+      title="Activity Data"
+      description="Detailed performance data from various Blunt Olympics events and competitions."
+    >
+      <motion.div
+        className="card"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <LeaderboardTable data={mockActivityData} columns={["Rank", "Event", "Top Score/Performance", "Participant"]} />
+      </motion.div>
+    </PageContainer>
   );
 };
 

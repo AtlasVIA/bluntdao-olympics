@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { StatCard } from "../common";
+import { PageContainer, StatCard } from "../common";
 import { motion } from "framer-motion";
 
 interface ParticipantData {
@@ -56,72 +56,87 @@ const ParticipantStats: React.FC = () => {
     },
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (!participantData) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-xl text-gray-600">No participant data available</p>
-      </div>
-    );
-  }
-
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible">
-      <h1 className="text-4xl font-bold mb-8 text-center">Participant Stats</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <motion.div variants={itemVariants}>
-          <StatCard title="Personal Info">
-            <p>
-              <strong>Name:</strong> {participantData.name}
-            </p>
-            <p>
-              <strong>Country:</strong> {participantData.country}
-            </p>
-            <p>
-              <strong>Events Participated:</strong> {participantData.eventsParticipated}
-            </p>
-          </StatCard>
+    <PageContainer
+      title="Participant Stats"
+      description="Detailed statistics and achievements of Blunt Olympics participants."
+    >
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--primary-green))]"></div>
+        </div>
+      ) : !participantData ? (
+        <div className="card text-center py-8">
+          <p className="text-xl text-weed-secondary">No participant data available</p>
+        </div>
+      ) : (
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <motion.div variants={itemVariants}>
+            <StatCard title="Personal Info">
+              <div className="space-y-2 text-weed-secondary">
+                <p>
+                  <strong className="text-weed-primary">Name:</strong> {participantData.name}
+                </p>
+                <p>
+                  <strong className="text-weed-primary">Country:</strong> {participantData.country}
+                </p>
+                <p>
+                  <strong className="text-weed-primary">Events Participated:</strong>{" "}
+                  {participantData.eventsParticipated}
+                </p>
+              </div>
+            </StatCard>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <StatCard title="Medals">
+              <div className="space-y-2 text-weed-secondary">
+                <p>
+                  <strong className="text-weed-primary">Gold:</strong> {participantData.medals.gold}
+                </p>
+                <p>
+                  <strong className="text-weed-primary">Silver:</strong> {participantData.medals.silver}
+                </p>
+                <p>
+                  <strong className="text-weed-primary">Bronze:</strong> {participantData.medals.bronze}
+                </p>
+              </div>
+            </StatCard>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <StatCard title="Personal Bests">
+              <ul className="space-y-2 text-weed-secondary">
+                {participantData.personalBests.map((best, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="text-weed-primary">•</span>
+                    {best}
+                  </li>
+                ))}
+              </ul>
+            </StatCard>
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <StatCard title="Awards">
+              <ul className="space-y-2 text-weed-secondary">
+                {participantData.awards.map((award, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="text-weed-primary">•</span>
+                    {award}
+                  </li>
+                ))}
+              </ul>
+            </StatCard>
+          </motion.div>
         </motion.div>
-        <motion.div variants={itemVariants}>
-          <StatCard title="Medals">
-            <p>
-              <strong>Gold:</strong> {participantData.medals.gold}
-            </p>
-            <p>
-              <strong>Silver:</strong> {participantData.medals.silver}
-            </p>
-            <p>
-              <strong>Bronze:</strong> {participantData.medals.bronze}
-            </p>
-          </StatCard>
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <StatCard title="Personal Bests">
-            <ul className="list-disc list-inside">
-              {participantData.personalBests.map((best, index) => (
-                <li key={index}>{best}</li>
-              ))}
-            </ul>
-          </StatCard>
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <StatCard title="Awards">
-            <ul className="list-disc list-inside">
-              {participantData.awards.map((award, index) => (
-                <li key={index}>{award}</li>
-              ))}
-            </ul>
-          </StatCard>
-        </motion.div>
-      </div>
-    </motion.div>
+      )}
+    </PageContainer>
   );
 };
 

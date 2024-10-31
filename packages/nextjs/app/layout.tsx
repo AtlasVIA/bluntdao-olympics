@@ -8,8 +8,8 @@ import { walletConnectStyles } from "~~/styles/rainbowKit";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "BluntDAO Olympics",
-  description: "Official website for the BluntDAO Olympics events and leaderboards",
+  title: "Blunt Olympics",
+  description: "Official website for the Blunt Olympics events and leaderboards",
   icons: {
     icon: "/bluntolympicscut.png",
   },

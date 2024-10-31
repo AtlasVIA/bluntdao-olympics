@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LeaderboardTable } from "../common";
+import { LeaderboardTable, PageContainer } from "../common";
 import { motion } from "framer-motion";
 
 const mockCountryData = [
@@ -14,10 +14,19 @@ const mockCountryData = [
 
 const CountryLeaderboard: React.FC = () => {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <h1 className="text-4xl font-bold mb-8 text-center">Country Leaderboard</h1>
-      <LeaderboardTable data={mockCountryData} columns={["Rank", "Country", "Points", "Gold", "Silver", "Bronze"]} />
-    </motion.div>
+    <PageContainer
+      title="Country Leaderboard"
+      description="Track the performance of participating countries in the Blunt Olympics, ranked by total points and medals."
+    >
+      <motion.div
+        className="card"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <LeaderboardTable data={mockCountryData} columns={["Rank", "Country", "Points", "Gold", "Silver", "Bronze"]} />
+      </motion.div>
+    </PageContainer>
   );
 };
 

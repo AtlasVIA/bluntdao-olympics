@@ -6,17 +6,21 @@ import { motion } from "framer-motion";
 interface StatCardProps {
   title: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, children }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, children, className = "" }) => {
   return (
     <motion.div
-      className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"
+      className={`card hover-lift ${className}`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
-      <h2 className="text-xl font-semibold mb-4">{title}</h2>
-      <div className="text-gray-700">{children}</div>
+      <h2 className="text-xl font-semibold mb-4 text-weed-primary">{title}</h2>
+      <div className="text-foreground">{children}</div>
     </motion.div>
   );
 };

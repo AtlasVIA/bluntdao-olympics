@@ -2,8 +2,8 @@ import MedalTally from "../../components/bluntdao-olympics/screens/MedalTally";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "BluntDAO Olympics Medal Tally",
-  description: "Track the medal count and standings for the BluntDAO Olympics",
+  title: "Blunt Olympics Medal Tally",
+  description: "Track the medal count and standings for the Blunt Olympics",
 };
 
 export default function MedalTallyPage() {

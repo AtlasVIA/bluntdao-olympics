@@ -50,7 +50,7 @@ export const Header = () => {
         <Link href="/" className="hover:opacity-80 transition-opacity flex-shrink-0">
           <Image
             src="/bluntolympicscut.png"
-            alt="BluntDAO Olympics Logo"
+            alt="Blunt Olympics Logo"
             width={160}
             height={64}
             priority
