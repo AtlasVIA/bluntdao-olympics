@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { SwitchTheme } from "../../SwitchTheme";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaChartBar, FaFire, FaHome, FaMedal, FaRunning, FaTrophy } from "react-icons/fa";
+import { FaCalendarAlt, FaChartBar, FaFire, FaHome, FaMedal, FaRunning, FaTrophy } from "react-icons/fa";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +16,12 @@ const Header: React.FC = () => {
     { href: "/consumption-stats", label: "Consumption Stats", icon: FaChartBar },
     { href: "/activity-data", label: "Activity Data", icon: FaRunning },
     { href: "/popular-activities", label: "Activities", icon: FaFire },
+    {
+      href: "https://lu.ma/olympics.bluntdao.org",
+      label: "Join on Lu.ma",
+      icon: FaCalendarAlt,
+      external: true,
+    },
   ];
 
   return (
@@ -33,13 +39,25 @@ const Header: React.FC = () => {
             <ul className="flex flex-wrap justify-end space-x-2">
               {menuItems.map(item => (
                 <li key={item.href} className="my-1">
-                  <Link
-                    href={item.href}
-                    className="flex items-center hover:bg-green-300 dark:hover:bg-green-700 transition-colors py-2 px-3 rounded text-sm"
-                  >
-                    <item.icon className="mr-2 text-lg" />
-                    <span>{item.label}</span>
-                  </Link>
+                  {item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center hover:bg-green-300 dark:hover:bg-green-700 transition-colors py-2 px-3 rounded text-sm"
+                    >
+                      <item.icon className="mr-2 text-lg" />
+                      <span>{item.label}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="flex items-center hover:bg-green-300 dark:hover:bg-green-700 transition-colors py-2 px-3 rounded text-sm"
+                    >
+                      <item.icon className="mr-2 text-lg" />
+                      <span>{item.label}</span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -74,14 +92,27 @@ const Header: React.FC = () => {
             <ul className="flex flex-col space-y-2 p-4">
               {menuItems.map(item => (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center py-2 px-4 hover:bg-green-200 dark:hover:bg-green-800 rounded transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <item.icon className="mr-3 text-xl" />
-                    <span>{item.label}</span>
-                  </Link>
+                  {item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center py-2 px-4 hover:bg-green-200 dark:hover:bg-green-800 rounded transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <item.icon className="mr-3 text-xl" />
+                      <span>{item.label}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="flex items-center py-2 px-4 hover:bg-green-200 dark:hover:bg-green-800 rounded transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <item.icon className="mr-3 text-xl" />
+                      <span>{item.label}</span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

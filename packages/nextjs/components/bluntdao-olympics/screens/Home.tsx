@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { FaCalendarAlt } from "react-icons/fa";
 
 const Home: React.FC = () => {
   const cardVariants = {
@@ -53,6 +54,24 @@ const Home: React.FC = () => {
       >
         Blunt Olympics
       </motion.h1>
+
+      <motion.div
+        className="flex justify-center mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <a
+          href="https://olympics.bluntdao.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-primary btn-lg gap-2 text-xl px-8 py-4 flex items-center bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:transform hover:scale-105"
+        >
+          <FaCalendarAlt className="text-2xl" />
+          Join the Olympics on Lu.ma
+        </a>
+      </motion.div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cards.map((card, index) => (
           <motion.div
@@ -60,7 +79,7 @@ const Home: React.FC = () => {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            transition={{ duration: 0.5, delay: index * 0.1 }}
+            transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
           >
             <Link
               href={card.href}
