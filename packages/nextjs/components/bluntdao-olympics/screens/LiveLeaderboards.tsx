@@ -1,61 +1,72 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { LeaderboardTable, PageContainer } from "../common";
-import { motion } from "framer-motion";
-import { FaCircle } from "react-icons/fa";
+import React, { useState } from "react";
+import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
+import type { Column, Tab } from "../common";
+import { FaGlobe, FaTrophy, FaUsers } from "react-icons/fa";
 
-const mockLiveData = [
-  { rank: 1, participant: "John Doe", event: "3-Point Contest", score: 28 },
-  { rank: 2, participant: "Jane Smith", event: "Muay Thai & Toke Off", score: 9.5 },
-  { rank: 3, participant: "Mike Johnson", event: "Skateboarding", score: 95 },
-  { rank: 4, participant: "Sarah Williams", event: "Half-Court Shots", score: 5 },
-  { rank: 5, participant: "Tom Brown", event: "Highest Ollie", score: 1.2 },
+const tabs: Tab[] = [
+  { key: "overall", label: "Overall Rankings" },
+  { key: "events", label: "Event Rankings" },
+  { key: "teams", label: "Team Rankings" },
 ];
 
+const columns: Column[] = [
+  { key: "rank", header: "Rank" },
+  { key: "name", header: "Name" },
+  { key: "country", header: "Country" },
+  {
+    key: "points",
+    header: "Points",
+    render: (value: number) => <span className="font-bold text-weed-primary">{value}</span>,
+  },
+  {
+    key: "trend",
+    header: "Trend",
+    render: (value: string) => {
+      const color = value === "up" ? "text-green-500" : value === "down" ? "text-red-500" : "text-gray-500";
+      const arrow = value === "up" ? "↑" : value === "down" ? "↓" : "−";
+      return <span className={`${color} font-bold`}>{arrow}</span>;
+    },
+  },
+];
+
+const mockData = {
+  stats: {
+    activeParticipants: "256",
+    countriesRepresented: "32",
+    topScore: "2,850",
+  },
+  rankings: [
+    { rank: 1, name: "John Doe", country: "Blazeland", points: 2850, trend: "up" },
+    { rank: 2, name: "Jane Smith", country: "Tokeville", points: 2750, trend: "up" },
+    { rank: 3, name: "Mike Johnson", country: "Ganjapolis", points: 2600, trend: "down" },
+    { rank: 4, name: "Sarah Williams", country: "Hempshire", points: 2500, trend: "same" },
+    { rank: 5, name: "Tom Brown", country: "Weedington", points: 2400, trend: "up" },
+  ],
+};
+
 const LiveLeaderboards: React.FC = () => {
-  const [liveData, setLiveData] = useState(mockLiveData);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [activeTab, setActiveTab] = useState("overall");
+  const [isLoading] = useState(false);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsUpdating(true);
-      // Simulate live updates by randomly changing scores
-      const updatedData = liveData.map(item => ({
-        ...item,
-        score: item.score + (Math.random() - 0.5) * 2,
-      }));
-      setLiveData(updatedData.sort((a, b) => b.score - a.score).map((item, index) => ({ ...item, rank: index + 1 })));
-      setTimeout(() => setIsUpdating(false), 500);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [liveData]);
+  if (isLoading) {
+    return <LoadingState message="Loading live leaderboards..." />;
+  }
 
   return (
-    <PageContainer
-      title="Live Leaderboards"
-      description="Real-time updates of ongoing  Olympics events and competitions."
-    >
-      <div className="flex items-center justify-end mb-4">
-        <div className="flex items-center gap-2 text-sm text-weed-secondary">
-          <FaCircle
-            className={`h-2 w-2 ${
-              isUpdating ? "text-[rgb(var(--primary-green))]" : "text-[rgb(var(--accent-green))]"
-            } ${isUpdating ? "animate-pulse" : ""}`}
-          />
-          <span>Live Updates</span>
-        </div>
-      </div>
+    <PageContainer title="Live Leaderboards" description="Real-time rankings and standings from the Blunt Olympics">
+      <div className="space-y-8">
+        <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
-      <motion.div
-        className="card"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <LeaderboardTable data={liveData} columns={["Rank", "Participant", "Event", "Score"]} />
-      </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <DataCard title="Active Participants" value={mockData.stats.activeParticipants} icon={<FaUsers />} />
+          <DataCard title="Countries" value={mockData.stats.countriesRepresented} icon={<FaGlobe />} />
+          <DataCard title="Top Score" value={mockData.stats.topScore} icon={<FaTrophy />} />
+        </div>
+
+        <DataTable columns={columns} data={mockData.rankings} className="mt-6" />
+      </div>
     </PageContainer>
   );
 };

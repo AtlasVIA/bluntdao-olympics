@@ -1,74 +1,69 @@
 "use client";
 
-import React from "react";
-import { PageContainer, StatCard } from "../common";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
+import type { Column, Tab } from "../common";
+import { FaClock, FaFire, FaLeaf } from "react-icons/fa";
 
-const mockConsumptionData = {
-  totalBlunts: 1000,
-  totalJoints: 1500,
-  totalSpliffs: 750,
-  bowlsCleared: 2000,
-  averagePerParticipant: 5.5,
+const tabs: Tab[] = [
+  { key: "daily", label: "Daily Stats" },
+  { key: "weekly", label: "Weekly Stats" },
+  { key: "monthly", label: "Monthly Stats" },
+];
+
+const columns: Column[] = [
+  { key: "time", header: "Time" },
+  { key: "amount", header: "Amount (g)" },
+  { key: "method", header: "Method" },
+  {
+    key: "change",
+    header: "Change",
+    render: (value: number) => (
+      <span className={value > 0 ? "text-green-500" : "text-red-500"}>
+        {value > 0 ? "+" : ""}
+        {value}%
+      </span>
+    ),
+  },
+];
+
+const mockData = {
+  stats: {
+    totalConsumption: "420g",
+    averagePerDay: "42g",
+    topMethod: "Blunts",
+  },
+  details: [
+    { time: "Morning", amount: 120, method: "Joints", change: 5 },
+    { time: "Afternoon", amount: 150, method: "Blunts", change: -2 },
+    { time: "Evening", amount: 180, method: "Bongs", change: 8 },
+  ],
 };
 
 const ConsumptionStats: React.FC = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
+  const [activeTab, setActiveTab] = useState("daily");
+  const [isLoading] = useState(false);
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+  if (isLoading) {
+    return <LoadingState message="Loading consumption stats..." />;
+  }
 
   return (
     <PageContainer
       title="Consumption Stats"
-      description="Track the consumption statistics across all Blunt Olympics events and participants."
+      description="Track consumption statistics across all Blunt Olympics events"
     >
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div variants={itemVariants}>
-          <StatCard title="Total Blunts Smoked">
-            <p className="text-3xl font-bold text-weed-primary">{mockConsumptionData.totalBlunts}</p>
-          </StatCard>
-        </motion.div>
+      <div className="space-y-8">
+        <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
-        <motion.div variants={itemVariants}>
-          <StatCard title="Total Joints Smoked">
-            <p className="text-3xl font-bold text-weed-primary">{mockConsumptionData.totalJoints}</p>
-          </StatCard>
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <DataCard title="Total Consumption" value={mockData.stats.totalConsumption} icon={<FaLeaf />} />
+          <DataCard title="Average Per Day" value={mockData.stats.averagePerDay} icon={<FaClock />} />
+          <DataCard title="Top Method" value={mockData.stats.topMethod} icon={<FaFire />} />
+        </div>
 
-        <motion.div variants={itemVariants}>
-          <StatCard title="Total Spliffs Smoked">
-            <p className="text-3xl font-bold text-weed-primary">{mockConsumptionData.totalSpliffs}</p>
-          </StatCard>
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <StatCard title="Bowls Cleared">
-            <p className="text-3xl font-bold text-weed-primary">{mockConsumptionData.bowlsCleared}</p>
-          </StatCard>
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <StatCard title="Average Per Participant">
-            <p className="text-3xl font-bold text-weed-primary">{mockConsumptionData.averagePerParticipant}</p>
-          </StatCard>
-        </motion.div>
-      </motion.div>
+        <DataTable columns={columns} data={mockData.details} className="mt-6" />
+      </div>
     </PageContainer>
   );
 };

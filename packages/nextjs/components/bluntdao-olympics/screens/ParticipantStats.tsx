@@ -1,141 +1,68 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { PageContainer, StatCard } from "../common";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
+import type { Column, Tab } from "../common";
+import { FaMedal, FaStopwatch, FaTrophy } from "react-icons/fa";
 
-interface ParticipantData {
-  name: string;
-  country: string;
-  eventsParticipated: number;
-  medals: {
-    gold: number;
-    silver: number;
-    bronze: number;
-  };
-  personalBests: string[];
-  awards: string[];
-}
+const tabs: Tab[] = [
+  { key: "overview", label: "Overview" },
+  { key: "achievements", label: "Achievements" },
+  { key: "history", label: "Event History" },
+];
 
-const mockParticipantData: ParticipantData = {
-  name: "Bob Marley",
-  country: "Blazeland",
-  eventsParticipated: 5,
-  medals: { gold: 2, silver: 1, bronze: 1 },
-  personalBests: ["Highest Ollie: 2.5m", "3-Point Contest: 28 points"],
-  awards: ["MVP - Skateboarding", "Best Play - Basketball"],
+const columns: Column[] = [
+  { key: "date", header: "Date" },
+  { key: "event", header: "Event" },
+  {
+    key: "performance",
+    header: "Performance",
+    render: (value: string) => <span className="font-medium text-weed-primary">{value}</span>,
+  },
+  {
+    key: "rank",
+    header: "Rank",
+    render: (value: number) => <span className="font-bold text-yellow-500">#{value}</span>,
+  },
+  { key: "points", header: "Points" },
+];
+
+const mockData = {
+  stats: {
+    totalEvents: "15",
+    bestRank: "#1",
+    totalPoints: "2,450",
+  },
+  history: [
+    { date: "2024-02-01", event: "Blunt Rolling", performance: "Perfect Roll", rank: 1, points: 500 },
+    { date: "2024-02-02", event: "Cloud Chasing", performance: "Epic Clouds", rank: 2, points: 450 },
+    { date: "2024-02-03", event: "Joint Art", performance: "Masterpiece", rank: 1, points: 500 },
+    { date: "2024-02-04", event: "Speed Smoking", performance: "4:20 min", rank: 3, points: 400 },
+    { date: "2024-02-05", event: "Smoke Rings", performance: "Perfect O's", rank: 2, points: 450 },
+  ],
 };
 
 const ParticipantStats: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [participantData, setParticipantData] = useState<ParticipantData | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isLoading] = useState(false);
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setParticipantData(mockParticipantData);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-    },
-  };
+  if (isLoading) {
+    return <LoadingState message="Loading participant stats..." />;
+  }
 
   return (
-    <PageContainer
-      title="Participant Stats"
-      description="Detailed statistics and achievements of Blunt Olympics participants."
-    >
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(var(--primary-green))]"></div>
+    <PageContainer title="Participant Stats" description="Track individual participant performance and achievements">
+      <div className="space-y-8">
+        <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <DataCard title="Events Participated" value={mockData.stats.totalEvents} icon={<FaStopwatch />} />
+          <DataCard title="Best Rank" value={mockData.stats.bestRank} icon={<FaTrophy />} />
+          <DataCard title="Total Points" value={mockData.stats.totalPoints} icon={<FaMedal />} />
         </div>
-      ) : !participantData ? (
-        <div className="card text-center py-8">
-          <p className="text-xl text-weed-secondary">No participant data available</p>
-        </div>
-      ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <motion.div variants={itemVariants}>
-            <StatCard title="Personal Info">
-              <div className="space-y-2 text-weed-secondary">
-                <p>
-                  <strong className="text-weed-primary">Name:</strong> {participantData.name}
-                </p>
-                <p>
-                  <strong className="text-weed-primary">Country:</strong> {participantData.country}
-                </p>
-                <p>
-                  <strong className="text-weed-primary">Events Participated:</strong>{" "}
-                  {participantData.eventsParticipated}
-                </p>
-              </div>
-            </StatCard>
-          </motion.div>
 
-          <motion.div variants={itemVariants}>
-            <StatCard title="Medals">
-              <div className="space-y-2 text-weed-secondary">
-                <p>
-                  <strong className="text-weed-primary">Gold:</strong> {participantData.medals.gold}
-                </p>
-                <p>
-                  <strong className="text-weed-primary">Silver:</strong> {participantData.medals.silver}
-                </p>
-                <p>
-                  <strong className="text-weed-primary">Bronze:</strong> {participantData.medals.bronze}
-                </p>
-              </div>
-            </StatCard>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <StatCard title="Personal Bests">
-              <ul className="space-y-2 text-weed-secondary">
-                {participantData.personalBests.map((best, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <span className="text-weed-primary">•</span>
-                    {best}
-                  </li>
-                ))}
-              </ul>
-            </StatCard>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <StatCard title="Awards">
-              <ul className="space-y-2 text-weed-secondary">
-                {participantData.awards.map((award, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <span className="text-weed-primary">•</span>
-                    {award}
-                  </li>
-                ))}
-              </ul>
-            </StatCard>
-          </motion.div>
-        </motion.div>
-      )}
+        <DataTable columns={columns} data={mockData.history} className="mt-6" />
+      </div>
     </PageContainer>
   );
 };
