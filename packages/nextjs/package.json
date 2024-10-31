@@ -11,9 +11,12 @@
     "serve": "next start",
     "start": "next dev",
     "vercel": "vercel",
-    "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
+    "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true",
+    "fleek": "next build && npx @fleekxyz/cli sites deploy out",
+    "fleek:yolo": "NEXT_PUBLIC_IGNORE_BUILD_ERROR=true next build && npx @fleekxyz/cli sites deploy out"
   },
-  "dependencies": {
+  "dependencies": {    
+    "@fleekxyz/cli": "^1.3.91",
     "@heroicons/react": "~2.0.11",
     "@rainbow-me/rainbowkit": "2.1.5",
     "@tanstack/react-query": "~5.28.6",
