@@ -15,7 +15,7 @@ const Header: React.FC = () => {
     { href: "/leaderboard", label: "Leaderboard", icon: FaTrophy },
     { href: "/consumption-stats", label: "Consumption Stats", icon: FaChartBar },
     { href: "/activity-data", label: "Activity Data", icon: FaRunning },
-    { href: "/popular-activities", label: "Popular Activities", icon: FaFire },
+    { href: "/popular-activities", label: "Activities", icon: FaFire },
   ];
 
   return (
@@ -26,7 +26,7 @@ const Header: React.FC = () => {
           className="text-2xl font-bold text-green-600 dark:text-green-300 hover:text-green-700 dark:hover:text-green-200 transition-colors flex items-center"
         >
           <span className="mr-2">🍁</span>
-          BluntDAO Olympics
+          Blunt Olympics
         </Link>
         <div className="flex items-center">
           <nav className="hidden lg:block mr-4">

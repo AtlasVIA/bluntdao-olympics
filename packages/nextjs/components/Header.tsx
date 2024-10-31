@@ -16,7 +16,7 @@ const Header: React.FC = () => {
     { href: "/leaderboard", label: "Leaderboard", icon: FaTrophy },
     { href: "/consumption-stats", label: "Consumption Stats", icon: FaChartBar },
     { href: "/activity-data", label: "Activity Data", icon: FaRunning },
-    { href: "/popular-activities", label: "Popular Activities", icon: FaFire },
+    { href: "/popular-activities", label: "Activities", icon: FaFire },
   ];
 
   return (

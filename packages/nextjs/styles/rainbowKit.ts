@@ -89,34 +89,34 @@ export const bluntDAOTheme: Theme = {
 
 // Custom styles for the wallet connect button
 export const walletConnectStyles = `
-  .wallet-connect-container {
+  .bluntdao-wallet-connect .wallet-connect-container {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 16px;
   }
 
-  .wallet-connect-button {
-    background-color: #22c55e;
-    color: white;
-    font-weight: bold;
-    padding: 12px 24px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 16px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  .bluntdao-wallet-connect .wallet-connect-button {
+    background-color: #22c55e !important;
+    color: white !important;
+    font-weight: bold !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+    font-size: 16px !important;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1) !important;
   }
 
-  .wallet-connect-button:hover {
-    background-color: #16a34a;
+  .bluntdao-wallet-connect .wallet-connect-button:hover {
+    background-color: #16a34a !important;
   }
 
   @media (max-width: 640px) {
-    .wallet-connect-button {
-      padding: 10px 20px;
-      font-size: 14px;
+    .bluntdao-wallet-connect .wallet-connect-button {
+      padding: 10px 20px !important;
+      font-size: 14px !important;
     }
   }
 `;
