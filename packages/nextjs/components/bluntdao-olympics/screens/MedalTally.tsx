@@ -2,7 +2,6 @@
 
 import React from "react";
 import { LeaderboardTable } from "../common";
-import { motion } from "framer-motion";
 
 const mockMedalData = [
   { rank: 1, country: "Blazeland", gold: 10, silver: 5, bronze: 3, total: 18 },
@@ -12,12 +11,17 @@ const mockMedalData = [
   { rank: 5, country: "Weedington", gold: 5, silver: 9, bronze: 4, total: 18 },
 ];
 
-const MedalTally: React.FC = () => {
+const MedalTally = () => {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <h1 className="text-4xl font-bold mb-8 text-center">Medal Tally</h1>
-      <LeaderboardTable data={mockMedalData} columns={["Rank", "Country", "Gold", "Silver", "Bronze", "Total"]} />
-    </motion.div>
+    <>
+      <h1 className="text-4xl font-bold mb-4 text-green-600">BluntDAO Olympics Medal Tally</h1>
+      <p className="text-gray-600 mb-6">
+        Track the medal count and standings for participating countries in the BluntDAO Olympics.
+      </p>
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <LeaderboardTable data={mockMedalData} columns={["Rank", "Country", "Gold", "Silver", "Bronze", "Total"]} />
+      </div>
+    </>
   );
 };
 
