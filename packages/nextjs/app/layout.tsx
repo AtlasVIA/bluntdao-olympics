@@ -11,6 +11,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "BluntDAO Olympics",
   description: "Official website for the BluntDAO Olympics events and leaderboards",
+  icons: {
+    icon: "/bluntolympicscut.png",
+  },
 };
 
 const ThemeProviderWrapper = dynamic(() => import("../components/ThemeProviderWrapper"), { ssr: false });

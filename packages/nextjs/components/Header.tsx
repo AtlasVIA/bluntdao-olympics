@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { SwitchTheme } from "./SwitchTheme";
 import { AnimatePresence, motion } from "framer-motion";
@@ -22,12 +23,15 @@ const Header: React.FC = () => {
   return (
     <header className="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 p-4 sticky top-0 z-50 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
-        <Link
-          href="/"
-          className="text-2xl font-bold text-green-600 dark:text-green-300 hover:text-green-700 dark:hover:text-green-200 transition-colors flex items-center"
-        >
-          <span className="mr-2">🍁</span>
-          BluntDAO Olympics
+        <Link href="/" className="hover:opacity-80 transition-opacity">
+          <Image
+            src="/bluntolympicscut.png"
+            alt="BluntDAO Olympics Logo"
+            width={200}
+            height={80}
+            priority
+            className="h-auto"
+          />
         </Link>
         <div className="flex items-center space-x-4">
           <nav className="hidden lg:block">

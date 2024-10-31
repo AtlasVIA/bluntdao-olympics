@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { SwitchTheme } from "../../SwitchTheme";
 import { AnimatePresence, motion } from "framer-motion";
@@ -31,7 +32,7 @@ const Header: React.FC = () => {
           href="/"
           className="text-2xl font-bold text-green-600 dark:text-green-300 hover:text-green-700 dark:hover:text-green-200 transition-colors flex items-center"
         >
-          <span className="mr-2">🍁</span>
+          <Image src="/bluntolympicscut.png" alt="BluntDAO Olympics Logo" width={40} height={40} className="mr-2" />
           Blunt Olympics
         </Link>
         <div className="flex items-center">
