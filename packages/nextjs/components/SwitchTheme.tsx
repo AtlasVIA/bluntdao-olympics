@@ -1,41 +1,26 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTheme } from "next-themes";
+import { useDarkMode, useIsMounted } from "usehooks-ts";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 
 export const SwitchTheme = ({ className }: { className?: string }) => {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { isDarkMode, toggle } = useDarkMode();
+  const isMounted = useIsMounted();
 
   useEffect(() => {
     const body = document.body;
-    if (resolvedTheme === "dark") {
-      body.classList.add("dark");
-    } else {
-      body.classList.remove("dark");
-    }
-  }, [resolvedTheme]);
+    body.setAttribute("data-theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
 
   return (
     <div className={`flex space-x-2 text-sm ${className}`}>
-      <input
-        id="theme-toggle"
-        type="checkbox"
-        className="hidden"
-        checked={resolvedTheme === "dark"}
-        onChange={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      />
-      <label
-        htmlFor="theme-toggle"
-        className={`
-          transition-colors duration-200
-          cursor-pointer
-          text-gray-500 hover:text-gray-600
-          dark:text-gray-400 dark:hover:text-gray-300
-        `}
+      <button
+        className={`hover:bg-secondary hover:bg-opacity-20 p-2 rounded-lg ${!isMounted() ? "hidden" : ""}`}
+        onClick={toggle}
       >
-        {resolvedTheme === "dark" ? <SunIcon className="h-6 w-6" /> : <MoonIcon className="h-6 w-6" />}
-      </label>
+        {isDarkMode ? <SunIcon className="h-6 w-6" /> : <MoonIcon className="h-6 w-6" />}
+      </button>
     </div>
   );
 };
