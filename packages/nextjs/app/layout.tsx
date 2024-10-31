@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import { Inter } from "next/font/google";
 import ErrorBoundary from "../components/bluntdao-olympics/common/ErrorBoundary";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -16,8 +15,6 @@ export const metadata = {
   },
 };
 
-const ThemeProviderWrapper = dynamic(() => import("../components/ThemeProviderWrapper"), { ssr: false });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -25,11 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <style dangerouslySetInnerHTML={{ __html: walletConnectStyles }} />
       </head>
       <body className={inter.className}>
-        <ThemeProviderWrapper>
-          <ErrorBoundary>
-            <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
-          </ErrorBoundary>
-        </ThemeProviderWrapper>
+        <ErrorBoundary>
+          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+        </ErrorBoundary>
       </body>
     </html>
   );

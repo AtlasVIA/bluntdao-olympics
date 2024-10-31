@@ -1,46 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 
 export const SwitchTheme = ({ className }: { className?: string }) => {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  const isDarkMode = theme === "dark";
-
-  const handleToggle = () => {
-    setTheme(isDarkMode ? "light" : "dark");
-  };
+    const body = document.body;
+    if (resolvedTheme === "dark") {
+      body.classList.add("dark");
+    } else {
+      body.classList.remove("dark");
+    }
+  }, [resolvedTheme]);
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <button
-        onClick={handleToggle}
-        className={`w-12 h-6 rounded-full p-1 bg-weed-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-weed-secondary ${
-          isDarkMode ? "bg-opacity-50" : "bg-opacity-100"
-        }`}
+    <div className={`flex space-x-2 text-sm ${className}`}>
+      <input
+        id="theme-toggle"
+        type="checkbox"
+        className="hidden"
+        checked={resolvedTheme === "dark"}
+        onChange={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      />
+      <label
+        htmlFor="theme-toggle"
+        className={`
+          transition-colors duration-200
+          cursor-pointer
+          text-gray-500 hover:text-gray-600
+          dark:text-gray-400 dark:hover:text-gray-300
+        `}
       >
-        <div
-          className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
-            isDarkMode ? "translate-x-6" : "translate-x-0"
-          }`}
-        />
-      </button>
-      <span className="ml-2">
-        {isDarkMode ? (
-          <MoonIcon className="h-5 w-5 text-weed-primary" />
-        ) : (
-          <SunIcon className="h-5 w-5 text-weed-primary" />
-        )}
-      </span>
+        {resolvedTheme === "dark" ? <SunIcon className="h-6 w-6" /> : <MoonIcon className="h-6 w-6" />}
+      </label>
     </div>
   );
 };
