@@ -36,8 +36,10 @@ const HomeView: React.FC = () => {
         <div className="hero bg-base-200 rounded-lg p-8">
           <div className="hero-content text-center">
             <div className="max-w-md">
-              <h1 className="text-5xl font-bold mb-4">🏆 Blunt Olympics</h1>
-              <p className="text-xl mb-6">Welcome to the premier competitive cannabis consumption platform!</p>
+              <h1 className="text-5xl font-bold mb-4 dark:text-white">🏆 Blunt Olympics</h1>
+              <p className="text-xl mb-6 dark:text-white">
+                Welcome to the premier competitive cannabis consumption platform!
+              </p>
               {!isConnected && <button className="btn btn-primary">Connect Wallet to Participate</button>}
             </div>
           </div>
@@ -52,8 +54,8 @@ const HomeView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="card bg-base-200">
             <div className="card-body">
-              <h2 className="card-title">🎯 Getting Started</h2>
-              <ul className="list-disc list-inside space-y-2">
+              <h2 className="card-title dark:text-white">🎯 Getting Started</h2>
+              <ul className="list-disc list-inside space-y-2 dark:text-white">
                 <li>Connect your wallet to participate</li>
                 <li>Join ongoing events</li>
                 <li>Track your progress on leaderboards</li>
@@ -64,8 +66,8 @@ const HomeView: React.FC = () => {
 
           <div className="card bg-base-200">
             <div className="card-body">
-              <h2 className="card-title">🌟 Features</h2>
-              <ul className="list-disc list-inside space-y-2">
+              <h2 className="card-title dark:text-white">🌟 Features</h2>
+              <ul className="list-disc list-inside space-y-2 dark:text-white">
                 <li>Real-time leaderboards</li>
                 <li>Multiple event categories</li>
                 <li>Achievement tracking</li>

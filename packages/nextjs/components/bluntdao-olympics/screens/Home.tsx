@@ -64,14 +64,16 @@ export const Home = () => {
         {/* Active Events Section */}
         {activeEvents && activeEvents.length > 0 && (
           <div className="bg-base-200 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">🔥 Live Events</h2>
+            <h2 className="text-2xl font-bold mb-4 dark:text-white">🔥 Live Events</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {activeEvents.map((event: Event) => (
                 <div key={event.eventId} className="card bg-base-100 shadow-xl">
                   <div className="card-body">
-                    <h3 className="card-title text-primary">{event.name}</h3>
-                    <p className="text-sm">{event.description}</p>
-                    <p className="text-sm opacity-70">Ends in {calculateTimeRemaining(event.endTime, "end")}</p>
+                    <h3 className="card-title text-primary dark:text-white">{event.name}</h3>
+                    <p className="text-sm dark:text-white">{event.description}</p>
+                    <p className="text-sm opacity-70 dark:text-white">
+                      Ends in {calculateTimeRemaining(event.endTime, "end")}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -123,14 +125,16 @@ export const Home = () => {
         {/* Upcoming Events Section */}
         {upcomingEvents && upcomingEvents.length > 0 && (
           <div className="bg-base-200 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">🗓️ Upcoming Events</h2>
+            <h2 className="text-2xl font-bold mb-4 dark:text-white">🗓️ Upcoming Events</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {upcomingEvents.map((event: Event) => (
                 <div key={event.eventId} className="card bg-base-100 shadow-xl">
                   <div className="card-body">
-                    <h3 className="card-title text-primary">{event.name}</h3>
-                    <p className="text-sm">{event.description}</p>
-                    <p className="text-sm opacity-70">Starts in {calculateTimeRemaining(event.startTime, "start")}</p>
+                    <h3 className="card-title text-primary dark:text-white">{event.name}</h3>
+                    <p className="text-sm dark:text-white">{event.description}</p>
+                    <p className="text-sm opacity-70 dark:text-white">
+                      Starts in {calculateTimeRemaining(event.startTime, "start")}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -141,14 +145,14 @@ export const Home = () => {
         {/* Top Strains Section */}
         {topStrains && topStrains.length > 0 && (
           <div className="bg-base-200 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">🌿 Top Strains</h2>
+            <h2 className="text-2xl font-bold mb-4 dark:text-white">🌿 Top Strains</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {topStrains.map(strain => (
                 <div key={strain.name} className="card bg-base-100 shadow-xl">
                   <div className="card-body">
-                    <h3 className="card-title text-sm">{strain.name}</h3>
-                    <p className="text-2xl font-bold">{strain.usageCount}</p>
-                    <p className="text-xs opacity-70">times used</p>
+                    <h3 className="card-title text-sm dark:text-white">{strain.name}</h3>
+                    <p className="text-2xl font-bold dark:text-white">{strain.usageCount}</p>
+                    <p className="text-xs opacity-70 dark:text-white">times used</p>
                   </div>
                 </div>
               ))}
@@ -158,8 +162,8 @@ export const Home = () => {
 
         {!isConnected && (
           <div className="text-center mt-8 p-6 bg-base-200 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Join the Blunt Olympics!</h2>
-            <p className="text-lg">
+            <h2 className="text-2xl font-bold mb-4 dark:text-white">Join the Blunt Olympics!</h2>
+            <p className="text-lg dark:text-white">
               Connect your wallet to start participating and tracking your personal achievements.
             </p>
           </div>

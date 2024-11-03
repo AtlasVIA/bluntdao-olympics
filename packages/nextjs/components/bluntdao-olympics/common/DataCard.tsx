@@ -29,17 +29,17 @@ export const DataCard: React.FC<DataCardProps> = ({ title, subtitle, stats, valu
         <div className="flex items-center gap-2">
           {icon}
           <div>
-            <h2 className="card-title text-lg">{title}</h2>
-            {subtitle && <p className="text-sm text-base-content/70">{subtitle}</p>}
+            <h2 className="card-title text-lg dark:text-white">{title}</h2>
+            {subtitle && <p className="text-sm text-base-content/70 dark:text-white">{subtitle}</p>}
           </div>
         </div>
-        {value !== undefined && <p className="text-2xl font-bold mt-2">{value}</p>}
+        {value !== undefined && <p className="text-2xl font-bold mt-2 dark:text-white">{value}</p>}
         {stats && stats.length > 0 && (
           <div className="space-y-2 mt-4">
             {stats.map((stat, index) => (
               <div key={index} className="flex justify-between items-center">
-                <span className="text-base-content/70">{stat.label}</span>
-                <span className="font-bold">{stat.value}</span>
+                <span className="text-base-content/70 dark:text-white">{stat.label}</span>
+                <span className="font-bold dark:text-white">{stat.value}</span>
               </div>
             ))}
           </div>
