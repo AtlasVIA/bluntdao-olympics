@@ -1,81 +1,46 @@
-"use client";
-
 import React from "react";
-import { DataCard, LoadingState, PageContainer } from "../../../components/bluntdao-olympics/common";
+import { Badge, Card, DataTable, StatCard } from "../../../components/bluntdao-olympics/common";
+import type { Column } from "../../../components/bluntdao-olympics/common/DataTable";
 import { useMedals } from "../../../components/bluntdao-olympics/hooks";
-import { type Medal, type Stats } from "../../../components/bluntdao-olympics/types";
+
+type CountryMedals = {
+  country: string;
+  gold: number;
+  silver: number;
+  bronze: number;
+  total: number;
+};
 
 const MedalTallyView: React.FC = () => {
-  const { medals, stats, isLoading, error } = useMedals();
+  const { medals } = useMedals();
 
-  if (isLoading) {
-    return (
-      <PageContainer title="Medal Tally" description="Current medal standings across all events">
-        <LoadingState message="Loading medal data..." />
-      </PageContainer>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageContainer title="Medal Tally" description="Current medal standings across all events">
-        <div className="text-error text-center p-8">Error loading medal data: {error.message}</div>
-      </PageContainer>
-    );
-  }
+  const columns: Array<Column<CountryMedals>> = [
+    { header: "Country", accessor: "country" },
+    { header: "Gold", accessor: "gold" },
+    { header: "Silver", accessor: "silver" },
+    { header: "Bronze", accessor: "bronze" },
+    { header: "Total", accessor: "total" },
+  ];
 
   return (
-    <PageContainer title="Medal Tally" description="Current medal standings across all events">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stats.map((stat: Stats, index: number) => (
-          <DataCard
-            key={index}
-            title={stat.title}
-            stats={[
-              { label: "Value", value: stat.value },
-              ...(stat.change
-                ? [
-                    {
-                      label: "Change",
-                      value: `${stat.trend === "up" ? "↑" : stat.trend === "down" ? "↓" : "→"} ${stat.change}%`,
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        ))}
-      </div>
-
-      {medals && medals.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Medal Distribution</h2>
-          <div className="overflow-x-auto">
-            <table className="table w-full">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Gold</th>
-                  <th>Silver</th>
-                  <th>Bronze</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {medals.map((medal: Medal, index: number) => (
-                  <tr key={index}>
-                    <td>{medal.eventId}</td>
-                    <td>{medal.type === 3 ? 1 : 0}</td>
-                    <td>{medal.type === 2 ? 1 : 0}</td>
-                    <td>{medal.type === 1 ? 1 : 0}</td>
-                    <td>1</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-bold text-base-content">Medal Tally</h1>
+          <Badge label="Updated Live" variant="primary" size="lg" />
         </div>
-      )}
-    </PageContainer>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard title="Gold Medals" value={medals?.totalGold || 0} icon={<span className="text-xl">🥇</span>} />
+          <StatCard title="Silver Medals" value={medals?.totalSilver || 0} icon={<span className="text-xl">🥈</span>} />
+          <StatCard title="Bronze Medals" value={medals?.totalBronze || 0} icon={<span className="text-xl">🥉</span>} />
+        </div>
+
+        <Card>
+          <DataTable columns={columns} data={medals?.countries || []} />
+        </Card>
+      </div>
+    </div>
   );
 };
 

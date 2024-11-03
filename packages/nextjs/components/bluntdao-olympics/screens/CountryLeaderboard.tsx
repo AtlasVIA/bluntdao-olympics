@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
 import { useMedals } from "../hooks";
-import { type Medal, type Tab } from "../types";
+import { type Stats, type Tab } from "../types";
 import { FaFlag, FaMedal, FaTrophy } from "react-icons/fa";
 
 interface CountryMedalData extends Record<string, unknown> {
@@ -65,28 +65,7 @@ export const CountryLeaderboard: React.FC = () => {
     return <div className="text-center text-red-500">Error loading country data: {error.message}</div>;
   }
 
-  // Group medals by country
-  const countryMedals = medals.reduce((acc: Record<string, CountryMedalData>, medal: Medal) => {
-    const country = "Global"; // TODO: Add country mapping
-    if (!acc[country]) {
-      acc[country] = {
-        country,
-        gold: 0,
-        silver: 0,
-        bronze: 0,
-        total: 0,
-      };
-    }
-
-    if (medal.type === 3) acc[country].gold++;
-    else if (medal.type === 2) acc[country].silver++;
-    else if (medal.type === 1) acc[country].bronze++;
-    acc[country].total++;
-
-    return acc;
-  }, {});
-
-  const countryData = Object.values(countryMedals);
+  const countryData = medals.countries;
 
   return (
     <PageContainer title="Country Leaderboard" description="Track the performance of participating countries">
@@ -94,7 +73,7 @@ export const CountryLeaderboard: React.FC = () => {
         <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map(stat => (
+          {stats.map((stat: Stats) => (
             <DataCard
               key={stat.id}
               title={stat.title}

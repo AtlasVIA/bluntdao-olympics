@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Column, DataTable, LoadingState } from "../../common";
+import { DataTable, LoadingState } from "../../common";
+import type { Column } from "../../common/DataTable";
 import { mockEvents } from "../../mockData";
 import { EVENT_STATUS, Event } from "../../types";
 
@@ -10,18 +11,18 @@ export const EventManagement = () => {
   const [loading, setLoading] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-  const columns: Column<Event>[] = [
+  const columns: Array<Column<Event>> = [
     {
       header: "Name",
-      accessor: "name" as const,
+      accessor: "name",
     },
     {
       header: "Description",
-      accessor: "description" as const,
+      accessor: "description",
     },
     {
       header: "Status",
-      accessor: "status" as const,
+      accessor: "status",
       render: value => {
         const status = value as number;
         switch (status) {
@@ -40,23 +41,23 @@ export const EventManagement = () => {
     },
     {
       header: "Start Time",
-      accessor: "startTime" as const,
+      accessor: "startTime",
       render: value => new Date(Number(value)).toLocaleString(),
     },
     {
       header: "End Time",
-      accessor: "endTime" as const,
+      accessor: "endTime",
       render: value => new Date(Number(value)).toLocaleString(),
     },
     {
       header: "Actions",
-      accessor: "eventId" as const,
-      render: (_, event) => (
+      accessor: "eventId",
+      render: (_, row) => (
         <div className="flex space-x-2">
-          <button onClick={() => setEditingEvent(event)} className="btn btn-sm btn-primary">
+          <button onClick={() => setEditingEvent(row)} className="btn btn-sm btn-primary">
             Edit
           </button>
-          <button onClick={() => handleDelete(event.eventId)} className="btn btn-sm btn-error">
+          <button onClick={() => handleDelete(row.eventId)} className="btn btn-sm btn-error">
             Delete
           </button>
         </div>

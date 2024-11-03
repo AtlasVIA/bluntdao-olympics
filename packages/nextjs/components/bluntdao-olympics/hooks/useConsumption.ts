@@ -1,46 +1,34 @@
-import { useEffect, useState } from "react";
-import { mockConsumptionStats, mockMethodDistribution, mockTopStrains } from "../mockData/consumption";
-import type { ConsumptionStats, Strain } from "../types";
+"use client";
 
-interface UseConsumptionReturn {
-  globalStats: ConsumptionStats | null;
-  methodDistribution: Record<number, number>;
-  topStrains: Strain[];
+import { useEffect, useState } from "react";
+import { mockConsumptionStats } from "../mockData";
+import type { ConsumptionStats } from "../types";
+
+interface ConsumptionHookResult {
+  stats: ConsumptionStats | null;
   isLoading: boolean;
   error: Error | null;
 }
 
-export function useConsumption(): UseConsumptionReturn {
-  const [globalStats, setGlobalStats] = useState<ConsumptionStats | null>(null);
-  const [methodDistribution, setMethodDistribution] = useState<Record<number, number>>({});
-  const [topStrains, setTopStrains] = useState<Strain[]>([]);
+export const useConsumption = (): ConsumptionHookResult => {
+  const [stats, setStats] = useState<ConsumptionStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchConsumptionStats = async () => {
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        setGlobalStats(mockConsumptionStats);
-        setMethodDistribution(mockMethodDistribution);
-        setTopStrains(mockTopStrains);
+        // Simulating API call with mock data
+        setStats(mockConsumptionStats);
+        setIsLoading(false);
       } catch (err) {
         setError(err as Error);
-      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchConsumptionStats();
   }, []);
 
-  return {
-    globalStats,
-    methodDistribution,
-    topStrains,
-    isLoading,
-    error,
-  };
-}
+  return { stats, isLoading, error };
+};

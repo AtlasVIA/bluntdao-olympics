@@ -54,3 +54,5 @@ export const DataTable = <T extends Record<string, unknown>>({ data, columns, cl
     </motion.div>
   );
 };
+
+export default DataTable;

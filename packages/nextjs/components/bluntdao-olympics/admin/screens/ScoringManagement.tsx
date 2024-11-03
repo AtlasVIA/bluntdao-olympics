@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Column, DataTable, LoadingState } from "../../common";
+import { DataTable, LoadingState } from "../../common";
+import type { Column } from "../../common/DataTable";
 import { mockEvents, mockParticipants } from "../../mockData";
 import { EVENT_STATUS, Event, MEDAL_TYPE, Participant } from "../../types";
 
@@ -14,8 +15,6 @@ interface ScoringRecord extends Record<string, unknown> {
   notes: string;
   timestamp: bigint;
 }
-
-type ScoringColumn = Column<ScoringRecord, keyof ScoringRecord>;
 
 export const ScoringManagement = () => {
   const [events] = useState<Event[]>(mockEvents);
@@ -44,11 +43,11 @@ export const ScoringManagement = () => {
     },
   ]);
 
-  const columns: ScoringColumn[] = [
+  const columns: Array<Column<ScoringRecord>> = [
     {
       header: "Participant",
       accessor: "participantAddress",
-      render: (value: unknown) => {
+      render: value => {
         const address = value as string;
         const participant = participants.find(p => p.participantAddress === address);
         return participant?.name || address;
@@ -61,7 +60,7 @@ export const ScoringManagement = () => {
     {
       header: "Medal",
       accessor: "medalType",
-      render: (value: unknown) => {
+      render: value => {
         const medal = value as number;
         switch (medal) {
           case MEDAL_TYPE.GOLD:
@@ -82,17 +81,17 @@ export const ScoringManagement = () => {
     {
       header: "Timestamp",
       accessor: "timestamp",
-      render: (value: unknown) => new Date(Number(value as bigint)).toLocaleString(),
+      render: value => new Date(Number(value as bigint)).toLocaleString(),
     },
     {
       header: "Actions",
       accessor: "id",
-      render: (_, record: ScoringRecord) => (
+      render: (_, row) => (
         <div className="flex space-x-2">
-          <button onClick={() => setEditingScore(record)} className="btn btn-sm btn-primary">
+          <button onClick={() => setEditingScore(row)} className="btn btn-sm btn-primary">
             Edit
           </button>
-          <button onClick={() => handleDelete(record.id)} className="btn btn-sm btn-error">
+          <button onClick={() => handleDelete(row.id)} className="btn btn-sm btn-error">
             Delete
           </button>
         </div>

@@ -1,29 +1,51 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { mockMedalStats, mockMedals } from "../mockData";
-import { Medal, Stats } from "../types";
+import type { MedalTally, Stats } from "../types";
 
-interface UseMedalsReturn {
-  medals: Medal[];
-  stats: Stats[];
-  isLoading: boolean;
-  error: Error | null;
-}
-
-export const useMedals = (): UseMedalsReturn => {
-  const [medals, setMedals] = useState<Medal[]>([]);
+export const useMedals = () => {
+  const [medals, setMedals] = useState<MedalTally>({
+    totalGold: 0,
+    totalSilver: 0,
+    totalBronze: 0,
+    countries: [],
+  });
   const [stats, setStats] = useState<Stats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // Simulate API call with mock data
     const fetchMedals = async () => {
       try {
-        setMedals(mockMedals);
+        // Transform mock data into MedalTally structure
+        const medalTally: MedalTally = {
+          totalGold: mockMedals.filter(m => m.type === 3).length,
+          totalSilver: mockMedals.filter(m => m.type === 2).length,
+          totalBronze: mockMedals.filter(m => m.type === 1).length,
+          countries: [
+            {
+              country: "USA",
+              gold: 2,
+              silver: 1,
+              bronze: 3,
+              total: 6,
+            },
+            {
+              country: "Canada",
+              gold: 1,
+              silver: 2,
+              bronze: 1,
+              total: 4,
+            },
+          ],
+        };
+
+        setMedals(medalTally);
         setStats(mockMedalStats);
         setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to fetch medals"));
+        setError(err as Error);
         setIsLoading(false);
       }
     };
@@ -33,3 +55,5 @@ export const useMedals = (): UseMedalsReturn => {
 
   return { medals, stats, isLoading, error };
 };
+
+export default useMedals;

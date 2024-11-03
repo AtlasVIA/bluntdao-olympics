@@ -1,10 +1,22 @@
-import { type ReactNode } from "react";
+import React from "react";
 
 interface ColumnProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }
 
-export const Column = ({ children, className = "" }: ColumnProps) => {
-  return <div className={`flex flex-col ${className}`}>{children}</div>;
+const Column: React.FC<ColumnProps> = ({ children, className = "" }) => {
+  return (
+    <div
+      className={`
+        flex flex-col gap-6 w-full
+        sm:gap-8 md:gap-10
+        ${className}
+      `}
+    >
+      {children}
+    </div>
+  );
 };
+
+export default Column;

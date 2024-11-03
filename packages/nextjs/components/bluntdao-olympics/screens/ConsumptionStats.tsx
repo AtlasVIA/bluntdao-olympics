@@ -2,13 +2,12 @@
 
 import { LoadingState, PageContainer, StatCard } from "../common";
 import { useConsumption } from "../hooks";
-import ParticipantStats from "../leaderboard/ParticipantStats";
-import { CONSUMPTION_METHOD, type ConsumptionMethod } from "../types";
+import { CONSUMPTION_METHOD } from "../types";
 import { useAccount } from "wagmi";
 
 export const ConsumptionStats = () => {
   const { isConnected } = useAccount();
-  const { topStrains, methodDistribution, globalStats, isLoading, error } = useConsumption();
+  const { stats, isLoading, error } = useConsumption();
 
   if (isLoading) {
     return (
@@ -26,8 +25,16 @@ export const ConsumptionStats = () => {
     );
   }
 
+  if (!stats) {
+    return (
+      <PageContainer title="No Data" description="No consumption statistics available">
+        <div className="text-center p-8">No consumption data available.</div>
+      </PageContainer>
+    );
+  }
+
   const getMostPopularMethod = (): string => {
-    if (!methodDistribution) return "N/A";
+    const methodDistribution = stats.methodDistribution || {};
     const entries = Object.entries(methodDistribution);
     if (entries.length === 0) return "N/A";
 
@@ -43,24 +50,14 @@ export const ConsumptionStats = () => {
       description="Detailed breakdown of consumption methods and preferences"
     >
       <div className="space-y-8">
-        {/* Participant Stats */}
-        <div className="bg-base-200 p-6 rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">🏆 Participant Rankings</h2>
-          <ParticipantStats />
-        </div>
-
         {/* Global Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard title="Total Consumption" value={`${stats.totalGrams || 0}g`} description="Across all events" />
+          <StatCard title="Most Popular Method" value={getMostPopularMethod()} description="Based on usage frequency" />
           <StatCard
-            title="Total Consumption"
-            stat={`${globalStats?.totalGrams || 0}g`}
-            description="Across all events"
-          />
-          <StatCard title="Most Popular Method" stat={getMostPopularMethod()} description="Based on usage frequency" />
-          <StatCard
-            title="Top Strain"
-            stat={topStrains?.[0]?.name || "N/A"}
-            description={`Used ${topStrains?.[0]?.usageCount || 0} times`}
+            title="Favorite Strain"
+            value={stats.favoriteStrain || "N/A"}
+            description={`Most frequently used strain`}
           />
         </div>
 
@@ -68,38 +65,33 @@ export const ConsumptionStats = () => {
         <div className="bg-base-200 p-6 rounded-lg">
           <h2 className="text-2xl font-bold mb-4">🔥 Consumption Methods</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Object.entries(methodDistribution || {}).map(([methodKey, percentage]) => {
-              const method = parseInt(methodKey) as ConsumptionMethod;
-              const methodName =
-                Object.entries(CONSUMPTION_METHOD)
-                  .find(([, value]) => value === method)?.[0]
-                  ?.toLowerCase() || "unknown";
-
-              return (
-                <div key={methodKey} className="card bg-base-100 shadow-xl">
-                  <div className="card-body">
-                    <h3 className="card-title text-sm capitalize">{methodName}</h3>
-                    <p className="text-2xl font-bold">{percentage}%</p>
-                    <p className="text-xs opacity-70">of all sessions</p>
+            {Object.entries(CONSUMPTION_METHOD)
+              .filter(([key]) => isNaN(Number(key)))
+              .map(([methodName, methodValue]) => {
+                const methodDistribution = stats.methodDistribution || {};
+                const percentage = methodDistribution[methodValue] || 0;
+                return (
+                  <div key={methodValue} className="card bg-base-100 shadow-xl">
+                    <div className="card-body">
+                      <h3 className="card-title text-sm capitalize">{methodName.toLowerCase()}</h3>
+                      <p className="text-2xl font-bold">{percentage}%</p>
+                      <p className="text-xs opacity-70">of all sessions</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 
         {/* Top Strains */}
         <div className="bg-base-200 p-6 rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">🌿 Popular Strains</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {(topStrains || []).map((strain, index) => (
+          <h2 className="text-2xl font-bold mb-4">🌿 Top Strains</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.topStrains?.map(strain => (
               <div key={strain.name} className="card bg-base-100 shadow-xl">
                 <div className="card-body">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold">#{index + 1}</span>
-                    <h3 className="card-title text-sm">{strain.name}</h3>
-                  </div>
-                  <p className="text-2xl font-bold mt-2">{strain.usageCount}</p>
+                  <h3 className="card-title text-sm">{strain.name}</h3>
+                  <p className="text-2xl font-bold">{strain.usageCount}</p>
                   <p className="text-xs opacity-70">times used</p>
                 </div>
               </div>

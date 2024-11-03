@@ -1,57 +1,49 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { mockEvents } from "../mockData";
 import type { Event, Stats } from "../types";
 
-interface UseActivitiesReturn {
-  activities: Event[];
-  stats: Stats[];
-  isLoading: boolean;
-  error: Error | null;
-}
-
-export function useActivities(): UseActivitiesReturn {
+export const useActivities = () => {
   const [activities, setActivities] = useState<Event[]>([]);
   const [stats, setStats] = useState<Stats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchActivities = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const sortedEvents = [...mockEvents].sort((a, b) => Number(b.createdAt - a.createdAt));
-
-        setActivities(sortedEvents);
+        // Simulating API call with mock data
+        setActivities(mockEvents);
         setStats([
           {
             id: "1",
-            title: "Total Events",
-            label: "Total Active Events",
-            value: mockEvents.length.toString(),
+            title: "Total Activities",
+            value: mockEvents.length,
+            label: "Total Activities",
+            trend: "up",
+            change: 5,
           },
           {
             id: "2",
             title: "Active Events",
-            label: "Currently Running Events",
-            value: mockEvents.filter(e => e.status === 1).length.toString(),
-          },
-          {
-            id: "3",
-            title: "Upcoming Events",
-            label: "Scheduled Events",
-            value: mockEvents.filter(e => e.status === 0).length.toString(),
+            value: mockEvents.filter(e => e.status === 1).length,
+            label: "Currently Active Events",
+            trend: "up",
+            change: 2,
           },
         ]);
+        setIsLoading(false);
       } catch (err) {
         setError(err as Error);
-      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchActivities();
   }, []);
 
   return { activities, stats, isLoading, error };
-}
+};
+
+export default useActivities;

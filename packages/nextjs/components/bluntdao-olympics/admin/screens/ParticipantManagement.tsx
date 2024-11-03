@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Column, DataTable, LoadingState } from "../../common";
+import { DataTable, LoadingState } from "../../common";
+import type { Column } from "../../common/DataTable";
 import { mockParticipants } from "../../mockData";
 import { Participant } from "../../types";
 
@@ -10,45 +11,45 @@ export const ParticipantManagement = () => {
   const [loading, setLoading] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
 
-  const columns: Column<Participant>[] = [
+  const columns: Array<Column<Participant>> = [
     {
       header: "Name",
-      accessor: "name" as const,
+      accessor: "name",
     },
     {
       header: "Address",
-      accessor: "participantAddress" as const,
+      accessor: "participantAddress",
     },
     {
       header: "Is Judge",
-      accessor: "isJudge" as const,
-      render: value => ((value as boolean) ? "Yes" : "No"),
+      accessor: "isJudge",
+      render: value => (value ? "Yes" : "No"),
     },
     {
       header: "Total Events",
-      accessor: "totalEvents" as const,
+      accessor: "totalEvents",
     },
     {
       header: "Gold Medals",
-      accessor: "goldMedals" as const,
+      accessor: "goldMedals",
     },
     {
       header: "Silver Medals",
-      accessor: "silverMedals" as const,
+      accessor: "silverMedals",
     },
     {
       header: "Bronze Medals",
-      accessor: "bronzeMedals" as const,
+      accessor: "bronzeMedals",
     },
     {
       header: "Actions",
-      accessor: "participantAddress" as const,
-      render: (_, participant) => (
+      accessor: "participantAddress",
+      render: (_, row) => (
         <div className="flex space-x-2">
-          <button onClick={() => setEditingParticipant(participant)} className="btn btn-sm btn-primary">
+          <button onClick={() => setEditingParticipant(row)} className="btn btn-sm btn-primary">
             Edit
           </button>
-          <button onClick={() => handleDelete(participant.participantAddress)} className="btn btn-sm btn-error">
+          <button onClick={() => handleDelete(row.participantAddress)} className="btn btn-sm btn-error">
             Delete
           </button>
         </div>

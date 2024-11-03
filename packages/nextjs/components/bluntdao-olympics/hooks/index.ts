@@ -1,5 +1,7 @@
-export * from "./useActivities";
-export * from "./useConsumption";
-export * from "./useEvents";
-export * from "./useMedals";
-export * from "./useParticipants";
+"use client";
+
+export { useActivities } from "./useActivities";
+export { useConsumption } from "./useConsumption";
+export { useEvents } from "./useEvents";
+export { useMedals } from "./useMedals";
+export { useParticipants } from "./useParticipants";

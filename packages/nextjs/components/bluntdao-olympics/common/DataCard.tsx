@@ -1,50 +1,45 @@
-"use client";
-
 import React from "react";
-import { motion } from "framer-motion";
 
-interface Stat {
-  label: string;
-  value: string | number;
-}
-
-export interface DataCardProps {
+interface DataCardProps {
   title: string;
+  value: string | number;
   subtitle?: string;
-  stats?: Stat[];
-  value?: string | number;
   icon?: React.ReactNode;
+  trend?: "up" | "down" | "neutral";
   className?: string;
 }
 
-export const DataCard: React.FC<DataCardProps> = ({ title, subtitle, stats, value, icon, className = "" }) => {
+const DataCard: React.FC<DataCardProps> = ({ title, value, subtitle, icon, trend, className = "" }) => {
+  const getTrendColor = () => {
+    switch (trend) {
+      case "up":
+        return "text-success";
+      case "down":
+        return "text-error";
+      default:
+        return "text-base-content";
+    }
+  };
+
   return (
-    <motion.div
-      className={`card bg-base-200 shadow-xl ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <div
+      className={`
+        p-6 rounded-xl bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200
+        border border-base-200 hover:border-primary/20
+        ${className}
+      `}
     >
-      <div className="card-body">
-        <div className="flex items-center gap-2">
-          {icon}
-          <div>
-            <h2 className="card-title text-lg dark:text-white">{title}</h2>
-            {subtitle && <p className="text-sm text-base-content/70 dark:text-white">{subtitle}</p>}
-          </div>
-        </div>
-        {value !== undefined && <p className="text-2xl font-bold mt-2 dark:text-white">{value}</p>}
-        {stats && stats.length > 0 && (
-          <div className="space-y-2 mt-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span className="text-base-content/70 dark:text-white">{stat.label}</span>
-                <span className="font-bold dark:text-white">{stat.value}</span>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-base-content/80">{title}</h3>
+        {icon && <div className="text-primary/80">{icon}</div>}
       </div>
-    </motion.div>
+
+      <div className="flex flex-col gap-2">
+        <div className={`text-3xl font-bold ${getTrendColor()}`}>{value}</div>
+        {subtitle && <p className="text-sm text-base-content/60">{subtitle}</p>}
+      </div>
+    </div>
   );
 };
+
+export default DataCard;

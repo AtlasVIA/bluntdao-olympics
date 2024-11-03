@@ -1,106 +1,78 @@
 "use client";
 
 import React from "react";
-import { DataTable, PageContainer, StatCard } from "../common";
+import { DataTable, LoadingState, PageContainer, StatCard } from "../common";
 import { useEvents } from "../hooks";
 import { EVENT_STATUS, type Event, type EventStatus } from "../types";
 import { useAccount } from "wagmi";
 
-type EventColumn = {
-  header: string;
-  accessor: keyof Event;
-  render?: (value: Event[keyof Event], row: Event) => React.ReactNode;
-};
-
-const columns: EventColumn[] = [
-  {
-    header: "Event Name",
-    accessor: "name",
-  },
-  {
-    header: "Status",
-    accessor: "status",
-    render: value => {
-      const status = value as EventStatus;
-      const statusClasses: Record<EventStatus, string> = {
-        [EVENT_STATUS.IN_PROGRESS]: "text-green-500",
-        [EVENT_STATUS.COMPLETED]: "text-blue-500",
-        [EVENT_STATUS.UPCOMING]: "text-yellow-500",
-        [EVENT_STATUS.CANCELLED]: "text-red-500",
-      };
-      const statusText: Record<EventStatus, string> = {
-        [EVENT_STATUS.IN_PROGRESS]: "IN PROGRESS",
-        [EVENT_STATUS.COMPLETED]: "COMPLETED",
-        [EVENT_STATUS.UPCOMING]: "UPCOMING",
-        [EVENT_STATUS.CANCELLED]: "CANCELLED",
-      };
-      return <span className={statusClasses[status]}>{statusText[status]}</span>;
-    },
-  },
-  {
-    header: "Description",
-    accessor: "description",
-  },
-  {
-    header: "Start Time",
-    accessor: "startTime",
-    render: value => {
-      const time = value as bigint;
-      return new Date(Number(time) * 1000).toLocaleString();
-    },
-  },
-  {
-    header: "End Time",
-    accessor: "endTime",
-    render: value => {
-      const time = value as bigint;
-      return new Date(Number(time) * 1000).toLocaleString();
-    },
-  },
-];
-
 export const Events: React.FC = () => {
   const { isConnected } = useAccount();
-  const { events, isLoading } = useEvents();
+  const { events, isLoading, error } = useEvents();
 
   if (isLoading) {
-    return (
-      <PageContainer title="Loading" description="Loading events data">
-        <div className="flex justify-center items-center min-h-[400px]">
-          <span className="loading loading-spinner loading-lg"></span>
-        </div>
-      </PageContainer>
-    );
+    return <LoadingState message="Loading events..." />;
   }
 
-  const activeEvents = events?.filter(e => e.status === EVENT_STATUS.IN_PROGRESS) || [];
-  const completedEvents = events?.filter(e => e.status === EVENT_STATUS.COMPLETED) || [];
-  const upcomingEvents = events?.filter(e => e.status === EVENT_STATUS.UPCOMING) || [];
+  if (error) {
+    return <div className="text-error text-center p-8">Error loading events: {error.message}</div>;
+  }
+
+  const activeEvents = events?.filter((e: Event) => e.status === EVENT_STATUS.IN_PROGRESS) || [];
+  const completedEvents = events?.filter((e: Event) => e.status === EVENT_STATUS.COMPLETED) || [];
+  const upcomingEvents = events?.filter((e: Event) => e.status === EVENT_STATUS.UPCOMING) || [];
+
+  const getStatusDisplay = (status: EventStatus) => {
+    const statusMap = {
+      [EVENT_STATUS.IN_PROGRESS]: { text: "IN PROGRESS", class: "text-success" },
+      [EVENT_STATUS.COMPLETED]: { text: "COMPLETED", class: "text-info" },
+      [EVENT_STATUS.UPCOMING]: { text: "UPCOMING", class: "text-warning" },
+      [EVENT_STATUS.CANCELLED]: { text: "CANCELLED", class: "text-error" },
+    };
+    return statusMap[status] || { text: "UNKNOWN", class: "text-base-content" };
+  };
+
+  const columns = [
+    { header: "Event Name", accessor: "name" as keyof Event },
+    {
+      header: "Status",
+      accessor: "status" as keyof Event,
+      render: (value: Event[keyof Event]) => {
+        const status = getStatusDisplay(value as EventStatus);
+        return <span className={status.class}>{status.text}</span>;
+      },
+    },
+    { header: "Description", accessor: "description" as keyof Event },
+    {
+      header: "Start Date",
+      accessor: "startTime" as keyof Event,
+      render: (value: Event[keyof Event]) => new Date(Number(value)).toLocaleString(),
+    },
+    {
+      header: "End Date",
+      accessor: "endTime" as keyof Event,
+      render: (value: Event[keyof Event]) => new Date(Number(value)).toLocaleString(),
+    },
+  ];
 
   return (
-    <PageContainer title="Blunt Olympics Events" description="Track all competitions and events in the Blunt Olympics">
+    <PageContainer title="Events" description="Current and upcoming events">
       <div className="space-y-8">
-        {/* Events Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard title="Active Events" stat={activeEvents.length.toString()} description="Currently in progress" />
-          <StatCard
-            title="Completed Events"
-            stat={completedEvents.length.toString()}
-            description="Successfully finished"
-          />
-          <StatCard title="Upcoming Events" stat={upcomingEvents.length.toString()} description="Scheduled to start" />
+          <StatCard title="Active Events" value={activeEvents.length} description="Currently in progress" />
+          <StatCard title="Completed Events" value={completedEvents.length} description="Successfully finished" />
+          <StatCard title="Upcoming Events" value={upcomingEvents.length} description="Scheduled to start" />
         </div>
 
-        {/* Events Table */}
         <div className="bg-base-200 p-6 rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Event History</h2>
-          <DataTable<Event> data={events || []} columns={columns} />
+          <h2 className="text-2xl font-bold mb-4">Event List</h2>
+          <DataTable columns={columns} data={events || []} />
         </div>
 
         {!isConnected && (
           <div className="text-center mt-8 p-6 bg-base-200 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Join the Blunt Olympics!</h2>
-            <p className="text-lg">Connect your wallet to participate in events and track your progress.</p>
+            <h2 className="text-2xl font-bold mb-4">Join the Events!</h2>
+            <p className="text-lg">Connect your wallet to participate in events.</p>
           </div>
         )}
       </div>

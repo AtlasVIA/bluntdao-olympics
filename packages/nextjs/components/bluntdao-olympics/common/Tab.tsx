@@ -1,20 +1,30 @@
-import { ReactNode } from "react";
+import React from "react";
 
 interface TabProps {
-  children: ReactNode;
+  label: string;
   isActive?: boolean;
   onClick?: () => void;
+  children?: React.ReactNode;
 }
 
-export const Tab = ({ children, isActive, onClick }: TabProps) => {
+const Tab: React.FC<TabProps> = ({ label, isActive = false, onClick, children }) => {
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-        isActive ? "bg-primary text-primary-content" : "hover:bg-base-200"
-      }`}
+      className={`
+        cursor-pointer px-6 py-4 rounded-t-lg transition-all duration-200 ease-in-out
+        ${
+          isActive
+            ? "bg-base-100 border-b-2 border-primary font-semibold text-primary"
+            : "bg-base-200 hover:bg-base-300 text-base-content"
+        }
+        flex items-center gap-2
+      `}
     >
+      {label}
       {children}
-    </button>
+    </div>
   );
 };
+
+export default Tab;

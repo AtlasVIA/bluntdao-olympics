@@ -1,15 +1,15 @@
-import { ReactNode } from "react";
-import { Tab } from "../types";
+import React from "react";
+import { type Tab } from "../types";
 
-export interface TabGroupProps {
-  children?: ReactNode;
+interface TabGroupProps {
+  children?: React.ReactNode;
   className?: string;
   tabs?: Tab[];
   activeTab?: string;
   onTabChange?: (tabId: string) => void;
 }
 
-export const TabGroup = ({ children, className = "", tabs, activeTab, onTabChange }: TabGroupProps) => {
+export const TabGroup: React.FC<TabGroupProps> = ({ children, className = "", tabs, activeTab, onTabChange }) => {
   if (tabs) {
     return (
       <div className={`flex gap-2 p-1 rounded-xl bg-base-100 ${className}`}>
@@ -31,3 +31,5 @@ export const TabGroup = ({ children, className = "", tabs, activeTab, onTabChang
 
   return <div className={`flex gap-2 p-1 rounded-xl bg-base-100 ${className}`}>{children}</div>;
 };
+
+export default TabGroup;

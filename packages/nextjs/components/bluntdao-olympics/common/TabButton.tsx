@@ -1,29 +1,29 @@
-import { ReactNode } from "react";
-import Link from "next/link";
+import React from "react";
 
 interface TabButtonProps {
-  children: ReactNode;
+  label: string;
   isActive?: boolean;
-  href?: string;
   onClick?: () => void;
 }
 
-export const TabButton = ({ children, isActive, href, onClick }: TabButtonProps) => {
-  const className = `px-4 py-2 rounded-lg font-medium transition-colors ${
-    isActive ? "bg-primary text-primary-content" : "hover:bg-base-200"
-  }`;
-
-  if (href) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
-
+const TabButton: React.FC<TabButtonProps> = ({ label, isActive = false, onClick }) => {
   return (
-    <button onClick={onClick} className={className}>
-      {children}
+    <button
+      onClick={onClick}
+      className={`
+        px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out
+        ${
+          isActive
+            ? "bg-primary text-white shadow-lg transform scale-105"
+            : "bg-base-200 text-base-content hover:bg-base-300 hover:shadow-md"
+        }
+        focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50
+        active:transform active:scale-95
+      `}
+    >
+      {label}
     </button>
   );
 };
+
+export default TabButton;

@@ -59,6 +59,8 @@ export interface ConsumptionStats extends Record<string, unknown> {
   favoriteStrain: string;
   favoriteMethod: ConsumptionMethod;
   eventCount: number;
+  methodDistribution: Record<ConsumptionMethod, number>;
+  topStrains: Strain[];
 }
 
 export interface Medal extends Record<string, unknown> {
@@ -67,6 +69,19 @@ export interface Medal extends Record<string, unknown> {
   eventId: string;
   participantAddress: string;
   createdAt: bigint;
+}
+
+export interface MedalTally extends Record<string, unknown> {
+  totalGold: number;
+  totalSilver: number;
+  totalBronze: number;
+  countries: Array<{
+    country: string;
+    gold: number;
+    silver: number;
+    bronze: number;
+    total: number;
+  }>;
 }
 
 export interface Stats extends Record<string, unknown> {

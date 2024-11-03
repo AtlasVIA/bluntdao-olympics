@@ -1,171 +1,69 @@
 "use client";
 
+import React from "react";
 import { LoadingState, PageContainer, StatCard } from "../common";
-import { useConsumption, useEvents, useParticipants } from "../hooks";
-import { EVENT_STATUS, type Event } from "../types";
+import { useEvents, useParticipants } from "../hooks";
+import { EVENT_STATUS } from "../types";
 import { useAccount } from "wagmi";
 
-export const Home = () => {
-  const { address, isConnected } = useAccount();
-  const { participants, isLoading: participantsLoading, error: participantsError } = useParticipants();
-  const { events, isLoading: eventsLoading, error: eventsError } = useEvents();
-  const { globalStats, topStrains, isLoading: consumptionLoading, error: consumptionError } = useConsumption();
+export const Home: React.FC = () => {
+  const { isConnected } = useAccount();
+  const { events, isLoading: eventsLoading } = useEvents();
+  const { participants, isLoading: participantsLoading } = useParticipants();
 
-  const isLoading = participantsLoading || eventsLoading || consumptionLoading;
-  const error = participantsError || eventsError || consumptionError;
+  const isLoading = eventsLoading || participantsLoading;
 
   if (isLoading) {
-    return (
-      <PageContainer title="Loading" description="Loading data">
-        <LoadingState message="Loading Blunt Olympics data..." />
-      </PageContainer>
-    );
+    return <LoadingState message="Loading data..." />;
   }
 
-  if (error) {
-    return (
-      <PageContainer title="Error" description="Failed to load data">
-        <div className="text-error text-center p-8">Error loading data: {error.message}</div>
-      </PageContainer>
-    );
-  }
-
-  const userStats =
-    isConnected && address && participants
-      ? participants.find(p => p.participantAddress.toLowerCase() === address.toLowerCase())
-      : null;
-
-  const upcomingEvents = events
-    ?.filter((e: Event) => e.status === EVENT_STATUS.UPCOMING)
-    .sort((a: Event, b: Event) => Number(a.startTime - b.startTime))
-    .slice(0, 3);
-
-  const activeEvents = events?.filter((e: Event) => e.status === EVENT_STATUS.IN_PROGRESS);
-
-  const calculateTimeRemaining = (timestamp: bigint, type: "start" | "end"): string => {
-    const now = BigInt(Math.floor(Date.now() / 1000));
-    const diff = Number(type === "start" ? timestamp - now : timestamp - now);
-    const hours = Math.floor(diff / 3600);
-
-    if (hours < 24) {
-      return `${hours} hours`;
-    } else {
-      const days = Math.floor(hours / 24);
-      return `${days} days`;
-    }
-  };
+  const totalParticipants = participants?.length || 0;
+  const totalEvents = events?.length || 0;
+  const activeEvents = events?.filter(e => e.status === EVENT_STATUS.IN_PROGRESS).length || 0;
 
   return (
     <PageContainer
-      title={isConnected ? "Your Blunt Olympics Dashboard" : "Blunt Olympics Overview"}
-      description="Real-time statistics from the Blunt Olympics"
+      title="Welcome to Blunt Olympics"
+      description="The premier competitive cannabis consumption platform"
     >
       <div className="space-y-8">
-        {/* Active Events Section */}
-        {activeEvents && activeEvents.length > 0 && (
-          <div className="bg-base-200 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4 dark:text-white">🔥 Live Events</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activeEvents.map((event: Event) => (
-                <div key={event.eventId} className="card bg-base-100 shadow-xl">
-                  <div className="card-body">
-                    <h3 className="card-title text-primary dark:text-white">{event.name}</h3>
-                    <p className="text-sm dark:text-white">{event.description}</p>
-                    <p className="text-sm opacity-70 dark:text-white">
-                      Ends in {calculateTimeRemaining(event.endTime, "end")}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isConnected && userStats ? (
-            <>
-              <StatCard
-                title="Your Events"
-                stat={userStats.totalEvents.toString()}
-                description="Total events participated in"
-              />
-              <StatCard
-                title="Total Medals"
-                stat={(userStats.goldMedals + userStats.silverMedals + userStats.bronzeMedals).toString()}
-                description={`${userStats.goldMedals} Gold, ${userStats.silverMedals} Silver, ${userStats.bronzeMedals} Bronze`}
-              />
-              <StatCard
-                title="Participation Rate"
-                stat={`${Math.round((userStats.totalEvents / (events?.length || 1)) * 100)}%`}
-                description="Events you've participated in"
-              />
-            </>
-          ) : (
-            <>
-              <StatCard
-                title="Total Participants"
-                stat={participants?.length.toString() || "0"}
-                description="Active participants"
-              />
-              <StatCard
-                title="Total Consumption"
-                stat={`${globalStats?.totalGrams || 0}g`}
-                description="Across all events"
-              />
-              <StatCard
-                title="Active Events"
-                stat={(activeEvents?.length || 0).toString()}
-                description="Currently running events"
-              />
-            </>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard title="Total Participants" stat={totalParticipants.toString()} description="Athletes competing" />
+          <StatCard title="Total Events" stat={totalEvents.toString()} description="Competitions held" />
+          <StatCard title="Active Events" stat={activeEvents.toString()} description="Currently running" />
         </div>
 
-        {/* Upcoming Events Section */}
-        {upcomingEvents && upcomingEvents.length > 0 && (
-          <div className="bg-base-200 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4 dark:text-white">🗓️ Upcoming Events</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {upcomingEvents.map((event: Event) => (
-                <div key={event.eventId} className="card bg-base-100 shadow-xl">
-                  <div className="card-body">
-                    <h3 className="card-title text-primary dark:text-white">{event.name}</h3>
-                    <p className="text-sm dark:text-white">{event.description}</p>
-                    <p className="text-sm opacity-70 dark:text-white">
-                      Starts in {calculateTimeRemaining(event.startTime, "start")}
-                    </p>
-                  </div>
-                </div>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="card bg-base-200">
+            <div className="card-body">
+              <h2 className="card-title">🎯 Getting Started</h2>
+              <ul className="list-disc list-inside space-y-2">
+                <li>Connect your wallet to participate</li>
+                <li>Join ongoing events</li>
+                <li>Track your progress on leaderboards</li>
+                <li>Earn medals and recognition</li>
+              </ul>
             </div>
           </div>
-        )}
 
-        {/* Top Strains Section */}
-        {topStrains && topStrains.length > 0 && (
-          <div className="bg-base-200 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4 dark:text-white">🌿 Top Strains</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {topStrains.map(strain => (
-                <div key={strain.name} className="card bg-base-100 shadow-xl">
-                  <div className="card-body">
-                    <h3 className="card-title text-sm dark:text-white">{strain.name}</h3>
-                    <p className="text-2xl font-bold dark:text-white">{strain.usageCount}</p>
-                    <p className="text-xs opacity-70 dark:text-white">times used</p>
-                  </div>
-                </div>
-              ))}
+          <div className="card bg-base-200">
+            <div className="card-body">
+              <h2 className="card-title">🌟 Features</h2>
+              <ul className="list-disc list-inside space-y-2">
+                <li>Real-time leaderboards</li>
+                <li>Multiple event categories</li>
+                <li>Achievement tracking</li>
+                <li>Community rankings</li>
+              </ul>
             </div>
           </div>
-        )}
+        </div>
 
         {!isConnected && (
-          <div className="text-center mt-8 p-6 bg-base-200 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4 dark:text-white">Join the Blunt Olympics!</h2>
-            <p className="text-lg dark:text-white">
-              Connect your wallet to start participating and tracking your personal achievements.
-            </p>
+          <div className="text-center p-6 bg-base-200 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">Ready to Compete?</h2>
+            <p className="text-lg mb-6">Connect your wallet to join the Blunt Olympics!</p>
+            <button className="btn btn-primary">Connect Wallet</button>
           </div>
         )}
       </div>

@@ -11,11 +11,11 @@ interface LeaderboardRow extends Participant {
   latestEvent: string;
 }
 
-const Leaderboard = () => {
+export const Leaderboard = () => {
   const { address, isConnected } = useAccount();
   const { participants, isLoading: participantsLoading, error: participantsError } = useParticipants();
   const { events, isLoading: eventsLoading, error: eventsError } = useEvents();
-  const { topStrains, methodDistribution, isLoading: consumptionLoading, error: consumptionError } = useConsumption();
+  const { stats, isLoading: consumptionLoading, error: consumptionError } = useConsumption();
 
   const isLoading = participantsLoading || eventsLoading || consumptionLoading;
   const error = participantsError || eventsError || consumptionError;
@@ -96,15 +96,15 @@ const Leaderboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard
               title="Your Event Rank"
-              stat={`#${userRankings.eventRank}`}
+              value={`#${userRankings.eventRank}`}
               description="Based on participation"
             />
             <StatCard
               title="Your Overall Rank"
-              stat={`#${userRankings.scoreRank}`}
+              value={`#${userRankings.scoreRank}`}
               description="Based on performance"
             />
-            <StatCard title="Live Events" stat={activeEvents.length.toString()} description="Currently running" />
+            <StatCard title="Live Events" value={activeEvents.length.toString()} description="Currently running" />
           </div>
         )}
 
@@ -115,11 +115,11 @@ const Leaderboard = () => {
         </div>
 
         {/* Consumption Stats */}
-        {methodDistribution && (
+        {stats?.methodDistribution && (
           <div className="bg-base-200 p-6 rounded-lg">
             <h2 className="text-2xl font-bold mb-4">🔥 Most Popular Methods</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {Object.entries(methodDistribution).map(([methodKey, percentage]) => {
+              {Object.entries(stats.methodDistribution).map(([methodKey, percentage]) => {
                 const method = parseInt(methodKey) as ConsumptionMethod;
                 const methodName =
                   Object.entries(CONSUMPTION_METHOD)
@@ -141,11 +141,11 @@ const Leaderboard = () => {
         )}
 
         {/* Top Strains */}
-        {topStrains && (
+        {stats?.topStrains && (
           <div className="bg-base-200 p-6 rounded-lg">
             <h2 className="text-2xl font-bold mb-4">🌿 Top Strains</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {topStrains.map((strain, index) => (
+              {stats.topStrains.map((strain, index) => (
                 <div key={strain.name} className="card bg-base-100 shadow-xl">
                   <div className="card-body">
                     <div className="flex items-center gap-2">
@@ -171,5 +171,3 @@ const Leaderboard = () => {
     </PageContainer>
   );
 };
-
-export default Leaderboard;
