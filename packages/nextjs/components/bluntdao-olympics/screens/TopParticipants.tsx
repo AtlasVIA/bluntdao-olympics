@@ -2,74 +2,105 @@
 
 import React, { useState } from "react";
 import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
-import type { Column, Tab } from "../common";
+import type { Column } from "../common/DataTable";
+import { useParticipants } from "../hooks";
+import type { Participant, Tab } from "../types";
 import { FaMedal, FaStar, FaTrophy } from "react-icons/fa";
 
+interface ParticipantRow extends Record<string, unknown> {
+  rank: number;
+  name: string;
+  score: number;
+  events: number;
+  medals: number;
+}
+
 const tabs: Tab[] = [
-  { key: "overall", label: "Overall Rankings" },
-  { key: "weekly", label: "Weekly Stars" },
-  { key: "monthly", label: "Monthly Champions" },
+  { id: "overall", label: "Overall Rankings" },
+  { id: "weekly", label: "Weekly Stars" },
+  { id: "monthly", label: "Monthly Champions" },
 ];
 
-const columns: Column[] = [
-  { key: "rank", header: "Rank" },
-  { key: "participant", header: "Participant" },
+const columns: Array<Column<ParticipantRow>> = [
+  { header: "Rank", accessor: "rank" },
+  { header: "Name", accessor: "name" },
   {
-    key: "score",
     header: "Score",
-    render: (value: number) => <span className="font-bold text-weed-primary">{value}</span>,
+    accessor: "score",
+    render: value => <span className="font-bold text-weed-primary">{value as number}</span>,
   },
-  { key: "events", header: "Events" },
+  { header: "Events", accessor: "events" },
   {
-    key: "medals",
     header: "Medals",
-    render: (value: number) => (
+    accessor: "medals",
+    render: value => (
       <div className="flex items-center gap-1">
         <FaMedal className="text-yellow-500" />
-        <span>{value}</span>
+        <span>{value as number}</span>
       </div>
     ),
   },
 ];
 
-const mockData = {
-  stats: {
-    totalParticipants: "256",
-    topScore: "2,850",
-    totalMedals: "45",
+const calculateStats = (participants: Participant[]) => [
+  {
+    id: "total-participants",
+    label: "Total Participants",
+    value: participants.length,
+    icon: <FaTrophy />,
   },
-  participants: [
-    { rank: 1, participant: "John Doe", score: 2850, events: 12, medals: 5 },
-    { rank: 2, participant: "Jane Smith", score: 2750, events: 10, medals: 4 },
-    { rank: 3, participant: "Mike Johnson", score: 2600, events: 11, medals: 3 },
-    { rank: 4, participant: "Sarah Williams", score: 2500, events: 9, medals: 3 },
-    { rank: 5, participant: "Tom Brown", score: 2400, events: 8, medals: 2 },
-  ],
-};
+  {
+    id: "avg-events",
+    label: "Average Events",
+    value: Math.round(participants.reduce((acc, p) => acc + p.totalEvents, 0) / participants.length),
+    icon: <FaStar />,
+  },
+  {
+    id: "total-medals",
+    label: "Total Medals",
+    value: participants.reduce((acc, p) => acc + p.goldMedals + p.silverMedals + p.bronzeMedals, 0),
+    icon: <FaMedal />,
+  },
+];
 
 const TopParticipants: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overall");
-  const [isLoading] = useState(false);
+  const { participants, isLoading, error } = useParticipants();
 
   if (isLoading) {
     return <LoadingState message="Loading top participants..." />;
   }
 
+  if (error) {
+    return <div className="text-center text-red-500">Error loading participant data: {error.message}</div>;
+  }
+
+  if (!participants) {
+    return <div>No participants found.</div>;
+  }
+
+  const stats = calculateStats(participants);
+
+  const participantRows: ParticipantRow[] = participants.map((p, index) => ({
+    rank: index + 1,
+    name: p.name,
+    score: p.goldMedals * 3 + p.silverMedals * 2 + p.bronzeMedals,
+    events: p.totalEvents,
+    medals: p.goldMedals + p.silverMedals + p.bronzeMedals,
+  }));
+
   return (
-    <PageContainer
-      title="Top Participants"
-      description="Celebrating our highest achieving participants in the Blunt Olympics"
-    >
+    <PageContainer title="Top Participants" description="Celebrating our highest achieving participants">
       <div className="space-y-8">
         <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DataCard title="Total Participants" value={mockData.stats.totalParticipants} icon={<FaTrophy />} />
-          <DataCard title="Highest Score" value={mockData.stats.topScore} icon={<FaStar />} />
-          <DataCard title="Medals Awarded" value={mockData.stats.totalMedals} icon={<FaMedal />} />
+          {stats.map(stat => (
+            <DataCard key={stat.id} title={stat.label} value={stat.value} icon={stat.icon} />
+          ))}
         </div>
 
-        <DataTable columns={columns} data={mockData.participants} className="mt-6" />
+        <DataTable columns={columns} data={participantRows} className="mt-6" />
       </div>
     </PageContainer>
   );

@@ -1,25 +1,12 @@
-"use client";
-
-import React from "react";
-import { motion } from "framer-motion";
-
 interface LoadingStateProps {
   message?: string;
-  className?: string;
 }
 
-const LoadingState: React.FC<LoadingStateProps> = ({ message = "Loading...", className = "" }) => {
+export const LoadingState = ({ message = "Loading..." }: LoadingStateProps) => {
   return (
-    <motion.div
-      className={`flex flex-col items-center justify-center p-8 ${className}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="w-12 h-12 border-4 border-weed-primary border-t-transparent rounded-full animate-spin mb-4" />
-      <p className="text-weed-primary text-lg">{message}</p>
-    </motion.div>
+    <div className="flex flex-col items-center justify-center p-8">
+      <div className="loading loading-spinner loading-lg"></div>
+      <p className="mt-4 text-base-content/70">{message}</p>
+    </div>
   );
 };
-
-export default LoadingState;

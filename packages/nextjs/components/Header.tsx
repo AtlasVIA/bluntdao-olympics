@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { SwitchTheme } from "./SwitchTheme";
 import { RainbowKitCustomConnectButton } from "./scaffold-eth/RainbowKitCustomConnectButton";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaChartBar, FaFire, FaHome, FaMedal, FaRunning, FaTrophy } from "react-icons/fa";
+import { FaChartBar, FaFire, FaHome, FaTrophy } from "react-icons/fa";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,11 +15,9 @@ export const Header = () => {
 
   const menuItems = [
     { href: "/", label: "Home", icon: FaHome },
-    { href: "/medal-tally", label: "Medal Tally", icon: FaMedal },
     { href: "/leaderboard", label: "Leaderboard", icon: FaTrophy },
-    { href: "/consumption-stats", label: "Consumption Stats", icon: FaChartBar },
-    { href: "/activity-data", label: "Activity Data", icon: FaRunning },
-    { href: "/popular-activities", label: "Activities", icon: FaFire },
+    { href: "/consumption-stats", label: "Consumption", icon: FaChartBar },
+    { href: "/events", label: "Events", icon: FaFire },
     {
       href: "https://olympics.bluntdao.org",
       label: "Join on Lu.ma",

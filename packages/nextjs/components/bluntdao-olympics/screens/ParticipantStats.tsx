@@ -2,53 +2,99 @@
 
 import React, { useState } from "react";
 import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
-import type { Column, Tab } from "../common";
+import { useParticipants } from "../hooks";
+import { type Tab } from "../types";
 import { FaMedal, FaStopwatch, FaTrophy } from "react-icons/fa";
 
+interface ParticipantStatsData extends Record<string, unknown> {
+  participantAddress: string;
+  name: string;
+  isJudge: boolean;
+  totalEvents: number;
+  goldMedals: number;
+  silverMedals: number;
+  bronzeMedals: number;
+  createdAt: bigint;
+  score: number;
+  medals: number;
+}
+
 const tabs: Tab[] = [
-  { key: "overview", label: "Overview" },
-  { key: "achievements", label: "Achievements" },
-  { key: "history", label: "Event History" },
+  { id: "overview", label: "Overview" },
+  { id: "achievements", label: "Achievements" },
+  { id: "history", label: "Event History" },
 ];
 
-const columns: Column[] = [
-  { key: "date", header: "Date" },
-  { key: "event", header: "Event" },
-  {
-    key: "performance",
-    header: "Performance",
-    render: (value: string) => <span className="font-medium text-weed-primary">{value}</span>,
-  },
-  {
-    key: "rank",
-    header: "Rank",
-    render: (value: number) => <span className="font-bold text-yellow-500">#{value}</span>,
-  },
-  { key: "points", header: "Points" },
-];
-
-const mockData = {
-  stats: {
-    totalEvents: "15",
-    bestRank: "#1",
-    totalPoints: "2,450",
-  },
-  history: [
-    { date: "2024-02-01", event: "Blunt Rolling", performance: "Perfect Roll", rank: 1, points: 500 },
-    { date: "2024-02-02", event: "Cloud Chasing", performance: "Epic Clouds", rank: 2, points: 450 },
-    { date: "2024-02-03", event: "Joint Art", performance: "Masterpiece", rank: 1, points: 500 },
-    { date: "2024-02-04", event: "Speed Smoking", performance: "4:20 min", rank: 3, points: 400 },
-    { date: "2024-02-05", event: "Smoke Rings", performance: "Perfect O's", rank: 2, points: 450 },
-  ],
+type ParticipantColumn = {
+  header: string;
+  accessor: keyof ParticipantStatsData;
+  render?: (value: ParticipantStatsData[keyof ParticipantStatsData], row: ParticipantStatsData) => React.ReactNode;
 };
 
-const ParticipantStats: React.FC = () => {
+const columns: ParticipantColumn[] = [
+  {
+    header: "Name",
+    accessor: "name",
+  },
+  {
+    header: "Events",
+    accessor: "totalEvents",
+  },
+  {
+    header: "Score",
+    accessor: "score",
+    render: value => <span className="font-medium text-primary">{value as number}</span>,
+  },
+  {
+    header: "Medals",
+    accessor: "medals",
+    render: value => <span className="font-bold text-yellow-500">{value as number}</span>,
+  },
+];
+
+export const ParticipantStats: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [isLoading] = useState(false);
+  const { participants, isLoading, error } = useParticipants();
 
   if (isLoading) {
     return <LoadingState message="Loading participant stats..." />;
   }
+
+  if (error) {
+    return <div className="text-center text-red-500">Error loading participant data: {error.message}</div>;
+  }
+
+  const stats = [
+    {
+      id: "1",
+      title: "Total Events",
+      label: "Total Events Completed",
+      value: participants?.reduce((sum, p) => sum + p.totalEvents, 0) || 0,
+    },
+    {
+      id: "2",
+      title: "Average Score",
+      label: "Average Participant Score",
+      value: participants?.length
+        ? Math.round(
+            participants.reduce((sum, p) => sum + (p.goldMedals * 3 + p.silverMedals * 2 + p.bronzeMedals), 0) /
+              participants.length,
+          )
+        : 0,
+    },
+    {
+      id: "3",
+      title: "Total Medals",
+      label: "Total Medals Awarded",
+      value: participants?.reduce((sum, p) => sum + p.goldMedals + p.silverMedals + p.bronzeMedals, 0) || 0,
+    },
+  ];
+
+  const participantStats: ParticipantStatsData[] = (participants || []).map(p => ({
+    ...p,
+    score: p.goldMedals * 3 + p.silverMedals * 2 + p.bronzeMedals,
+    medals: p.goldMedals + p.silverMedals + p.bronzeMedals,
+  }));
 
   return (
     <PageContainer title="Participant Stats" description="Track individual participant performance and achievements">
@@ -56,15 +102,26 @@ const ParticipantStats: React.FC = () => {
         <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DataCard title="Events Participated" value={mockData.stats.totalEvents} icon={<FaStopwatch />} />
-          <DataCard title="Best Rank" value={mockData.stats.bestRank} icon={<FaTrophy />} />
-          <DataCard title="Total Points" value={mockData.stats.totalPoints} icon={<FaMedal />} />
+          {stats.map(stat => (
+            <DataCard
+              key={stat.id}
+              title={stat.title}
+              value={stat.value}
+              icon={
+                stat.label.includes("Total Events") ? (
+                  <FaStopwatch />
+                ) : stat.label.includes("Average") ? (
+                  <FaTrophy />
+                ) : (
+                  <FaMedal />
+                )
+              }
+            />
+          ))}
         </div>
 
-        <DataTable columns={columns} data={mockData.history} className="mt-6" />
+        <DataTable<ParticipantStatsData> columns={columns} data={participantStats} className="mt-6" />
       </div>
     </PageContainer>
   );
 };
-
-export default ParticipantStats;

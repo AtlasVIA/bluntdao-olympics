@@ -1,46 +1,33 @@
-"use client";
+import { ReactNode } from "react";
+import { Tab } from "../types";
 
-import React from "react";
-import { motion } from "framer-motion";
-
-export interface Tab {
-  key: string;
-  label: string;
-  icon?: React.ReactNode;
-}
-
-interface TabGroupProps {
-  tabs: Tab[];
-  activeTab: string;
-  onTabChange: (key: string) => void;
+export interface TabGroupProps {
+  children?: ReactNode;
   className?: string;
+  tabs?: Tab[];
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
 }
 
-const TabGroup: React.FC<TabGroupProps> = ({ tabs, activeTab, onTabChange, className = "" }) => {
-  return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
-      {tabs.map(tab => (
-        <motion.button
-          key={tab.key}
-          className={`
-            flex items-center gap-2 px-4 py-2 rounded-lg font-medium
-            transition-colors
-            ${
-              activeTab === tab.key
-                ? "bg-weed-primary text-white"
-                : "bg-weed-light dark:bg-weed-dark text-weed-primary hover:bg-weed-primary/20"
-            }
-          `}
-          onClick={() => onTabChange(tab.key)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {tab.icon}
-          {tab.label}
-        </motion.button>
-      ))}
-    </div>
-  );
-};
+export const TabGroup = ({ children, className = "", tabs, activeTab, onTabChange }: TabGroupProps) => {
+  if (tabs) {
+    return (
+      <div className={`flex gap-2 p-1 rounded-xl bg-base-100 ${className}`}>
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange?.(tab.id)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === tab.id ? "bg-primary text-primary-content" : "hover:bg-base-200"
+            }`}
+          >
+            {tab.icon && <span className="mr-2">{tab.icon}</span>}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
-export default TabGroup;
+  return <div className={`flex gap-2 p-1 rounded-xl bg-base-100 ${className}`}>{children}</div>;
+};

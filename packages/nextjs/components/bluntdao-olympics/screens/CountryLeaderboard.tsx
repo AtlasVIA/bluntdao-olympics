@@ -2,72 +2,118 @@
 
 import React, { useState } from "react";
 import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
-import type { Column, Tab } from "../common";
+import { useMedals } from "../hooks";
+import { type Medal, type Tab } from "../types";
 import { FaFlag, FaMedal, FaTrophy } from "react-icons/fa";
 
+interface CountryMedalData extends Record<string, unknown> {
+  country: string;
+  gold: number;
+  silver: number;
+  bronze: number;
+  total: number;
+}
+
 const tabs: Tab[] = [
-  { key: "overall", label: "Overall Rankings" },
-  { key: "medals", label: "Medal Count" },
-  { key: "participants", label: "Participants" },
+  { id: "overall", label: "Overall Rankings" },
+  { id: "medals", label: "Medal Count" },
+  { id: "participants", label: "Participants" },
 ];
 
-const columns: Column[] = [
-  { key: "rank", header: "Rank" },
-  { key: "country", header: "Country" },
-  {
-    key: "points",
-    header: "Points",
-    render: (value: number) => <span className="font-bold text-weed-primary">{value}</span>,
-  },
-  {
-    key: "medals",
-    header: "Total Medals",
-    render: (value: number) => <span className="font-medium text-yellow-500">{value}</span>,
-  },
-  { key: "participants", header: "Participants" },
-];
-
-const mockData = {
-  stats: {
-    totalCountries: "32",
-    topCountry: "Blazeland",
-    totalParticipants: "1,024",
-  },
-  countries: [
-    { rank: 1, country: "Blazeland", points: 2850, medals: 15, participants: 64 },
-    { rank: 2, country: "Tokeville", points: 2750, medals: 12, participants: 58 },
-    { rank: 3, country: "Ganjapolis", points: 2600, medals: 10, participants: 52 },
-    { rank: 4, country: "Hempshire", points: 2500, medals: 8, participants: 48 },
-    { rank: 5, country: "Weedington", points: 2400, medals: 7, participants: 44 },
-  ],
+type CountryColumn = {
+  header: string;
+  accessor: keyof CountryMedalData;
+  render?: (value: CountryMedalData[keyof CountryMedalData], row: CountryMedalData) => React.ReactNode;
 };
 
-const CountryLeaderboard: React.FC = () => {
+const columns: CountryColumn[] = [
+  {
+    header: "Country",
+    accessor: "country",
+  },
+  {
+    header: "Gold",
+    accessor: "gold",
+    render: value => <span className="font-medium text-yellow-500">{value as number}</span>,
+  },
+  {
+    header: "Silver",
+    accessor: "silver",
+    render: value => <span className="font-medium text-gray-400">{value as number}</span>,
+  },
+  {
+    header: "Bronze",
+    accessor: "bronze",
+    render: value => <span className="font-medium text-amber-700">{value as number}</span>,
+  },
+  {
+    header: "Total",
+    accessor: "total",
+    render: value => <span className="font-bold text-primary">{value as number}</span>,
+  },
+];
+
+export const CountryLeaderboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overall");
-  const [isLoading] = useState(false);
+  const { medals, stats, isLoading, error } = useMedals();
 
   if (isLoading) {
     return <LoadingState message="Loading country rankings..." />;
   }
 
+  if (error) {
+    return <div className="text-center text-red-500">Error loading country data: {error.message}</div>;
+  }
+
+  // Group medals by country
+  const countryMedals = medals.reduce((acc: Record<string, CountryMedalData>, medal: Medal) => {
+    const country = "Global"; // TODO: Add country mapping
+    if (!acc[country]) {
+      acc[country] = {
+        country,
+        gold: 0,
+        silver: 0,
+        bronze: 0,
+        total: 0,
+      };
+    }
+
+    if (medal.type === 3) acc[country].gold++;
+    else if (medal.type === 2) acc[country].silver++;
+    else if (medal.type === 1) acc[country].bronze++;
+    acc[country].total++;
+
+    return acc;
+  }, {});
+
+  const countryData = Object.values(countryMedals);
+
   return (
-    <PageContainer
-      title="Country Leaderboard"
-      description="Track the performance of participating countries in the Blunt Olympics"
-    >
+    <PageContainer title="Country Leaderboard" description="Track the performance of participating countries">
       <div className="space-y-8">
         <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DataCard title="Participating Countries" value={mockData.stats.totalCountries} icon={<FaFlag />} />
-          <DataCard title="Leading Country" value={mockData.stats.topCountry} icon={<FaTrophy />} />
-          <DataCard title="Total Participants" value={mockData.stats.totalParticipants} icon={<FaMedal />} />
+          {stats.map(stat => (
+            <DataCard
+              key={stat.id}
+              title={stat.title}
+              value={stat.value}
+              icon={
+                stat.label.includes("Countries") ? (
+                  <FaFlag />
+                ) : stat.label.includes("Leading") ? (
+                  <FaTrophy />
+                ) : (
+                  <FaMedal />
+                )
+              }
+            />
+          ))}
         </div>
 
-        <DataTable columns={columns} data={mockData.countries} className="mt-6" />
+        <DataTable<CountryMedalData> columns={columns} data={countryData} className="mt-6" />
       </div>
     </PageContainer>
   );
 };
-
-export default CountryLeaderboard;

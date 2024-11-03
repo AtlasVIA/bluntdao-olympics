@@ -1,6 +1,11 @@
-import React from "react";
-import ActivityData from "../../components/bluntdao-olympics/screens/ActivityData";
+import { ActivityData } from "../../components/bluntdao-olympics/screens";
+import { Metadata } from "next";
 
-export default function Page() {
+export const metadata: Metadata = {
+  title: "Blunt Olympics Activity Data",
+  description: "Track all events and activities in the Blunt Olympics",
+};
+
+export default function ActivityDataPage() {
   return <ActivityData />;
 }

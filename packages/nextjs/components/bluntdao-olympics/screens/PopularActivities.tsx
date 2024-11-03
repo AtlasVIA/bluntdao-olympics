@@ -2,77 +2,91 @@
 
 import React, { useState } from "react";
 import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
-import type { Column, Tab } from "../common";
-import { FaFire, FaStar, FaUsers } from "react-icons/fa";
+import { useActivities } from "../hooks";
+import { EVENT_STATUS, type Event, type EventStatus, type Tab } from "../types";
+import { FaClock, FaFire, FaUsers } from "react-icons/fa";
 
 const tabs: Tab[] = [
-  { key: "all", label: "All Activities" },
-  { key: "trending", label: "Trending" },
-  { key: "upcoming", label: "Upcoming" },
+  { id: "all", label: "All Events" },
+  { id: "active", label: "Active Events" },
+  { id: "upcoming", label: "Upcoming Events" },
 ];
 
-const columns: Column[] = [
-  { key: "rank", header: "Rank" },
-  { key: "activity", header: "Activity" },
-  {
-    key: "participants",
-    header: "Participants",
-    render: (value: number) => <span className="font-medium text-weed-primary">{value}</span>,
-  },
-  {
-    key: "rating",
-    header: "Rating",
-    render: (value: number) => (
-      <div className="flex items-center">
-        <FaStar className="text-yellow-500 mr-1" />
-        <span>{value.toFixed(1)}</span>
-      </div>
-    ),
-  },
-  { key: "category", header: "Category" },
-];
-
-const mockData = {
-  stats: {
-    totalActivities: "24",
-    mostPopular: "Blunt Rolling",
-    avgParticipants: "45",
-  },
-  activities: [
-    { rank: 1, activity: "Blunt Rolling", participants: 120, rating: 4.8, category: "Skills" },
-    { rank: 2, activity: "Cloud Chasing", participants: 95, rating: 4.6, category: "Competition" },
-    { rank: 3, activity: "Joint Art", participants: 85, rating: 4.7, category: "Creative" },
-    { rank: 4, activity: "Speed Smoking", participants: 75, rating: 4.3, category: "Competition" },
-    { rank: 5, activity: "Smoke Rings", participants: 70, rating: 4.5, category: "Skills" },
-  ],
+const getStatusDisplay = (status: EventStatus) => {
+  const statusClasses: Record<EventStatus, string> = {
+    [EVENT_STATUS.IN_PROGRESS]: "text-green-500",
+    [EVENT_STATUS.COMPLETED]: "text-blue-500",
+    [EVENT_STATUS.UPCOMING]: "text-yellow-500",
+    [EVENT_STATUS.CANCELLED]: "text-red-500",
+  };
+  const statusText: Record<EventStatus, string> = {
+    [EVENT_STATUS.IN_PROGRESS]: "IN PROGRESS",
+    [EVENT_STATUS.COMPLETED]: "COMPLETED",
+    [EVENT_STATUS.UPCOMING]: "UPCOMING",
+    [EVENT_STATUS.CANCELLED]: "CANCELLED",
+  };
+  return <span className={statusClasses[status]}>{statusText[status]}</span>;
 };
 
-const PopularActivities: React.FC = () => {
+const getColumns = () => [
+  {
+    header: "Event",
+    accessor: "name" as keyof Event,
+  },
+  {
+    header: "Description",
+    accessor: "description" as keyof Event,
+  },
+  {
+    header: "Status",
+    accessor: "status" as keyof Event,
+    render: (value: Event[keyof Event]) => getStatusDisplay(value as EventStatus),
+  },
+  {
+    header: "Start Time",
+    accessor: "startTime" as keyof Event,
+    render: (value: Event[keyof Event]) => new Date(Number(value as bigint)).toLocaleString(),
+  },
+];
+
+export const PopularActivities: React.FC = () => {
   const [activeTab, setActiveTab] = useState("all");
-  const [isLoading] = useState(false);
+  const { activities, stats, isLoading, error } = useActivities();
 
   if (isLoading) {
-    return <LoadingState message="Loading popular activities..." />;
+    return <LoadingState message="Loading events data..." />;
   }
 
+  if (error) {
+    return <div className="text-center text-red-500">Error loading events data: {error.message}</div>;
+  }
+
+  const filteredActivities = activities.filter(activity => {
+    if (activeTab === "active") return activity.status === EVENT_STATUS.IN_PROGRESS;
+    if (activeTab === "upcoming") return activity.status === EVENT_STATUS.UPCOMING;
+    return true;
+  });
+
   return (
-    <PageContainer
-      title="Popular Activities"
-      description="Discover the most popular and trending activities in the Blunt Olympics"
-    >
+    <PageContainer title="Events" description="Discover upcoming and ongoing events in the Blunt Olympics">
       <div className="space-y-8">
         <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DataCard title="Total Activities" value={mockData.stats.totalActivities} icon={<FaFire />} />
-          <DataCard title="Most Popular" value={mockData.stats.mostPopular} icon={<FaStar />} />
-          <DataCard title="Avg. Participants" value={mockData.stats.avgParticipants} icon={<FaUsers />} />
+          {stats.map(stat => (
+            <DataCard
+              key={stat.id}
+              title={stat.title}
+              value={stat.value}
+              icon={
+                stat.label.includes("Total") ? <FaFire /> : stat.label.includes("Active") ? <FaUsers /> : <FaClock />
+              }
+            />
+          ))}
         </div>
 
-        <DataTable columns={columns} data={mockData.activities} className="mt-6" />
+        <DataTable<Event> columns={getColumns()} data={filteredActivities} className="mt-6" />
       </div>
     </PageContainer>
   );
 };
-
-export default PopularActivities;

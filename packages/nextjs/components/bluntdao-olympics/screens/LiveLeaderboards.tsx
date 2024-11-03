@@ -2,57 +2,107 @@
 
 import React, { useState } from "react";
 import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
-import type { Column, Tab } from "../common";
+import { useParticipants } from "../hooks";
+import { type Tab } from "../types";
 import { FaGlobe, FaTrophy, FaUsers } from "react-icons/fa";
 
+interface LeaderboardData extends Record<string, unknown> {
+  participantAddress: string;
+  name: string;
+  isJudge: boolean;
+  totalEvents: number;
+  goldMedals: number;
+  silverMedals: number;
+  bronzeMedals: number;
+  createdAt: bigint;
+  rank: number;
+  score: number;
+  medals: number;
+}
+
 const tabs: Tab[] = [
-  { key: "overall", label: "Overall Rankings" },
-  { key: "events", label: "Event Rankings" },
-  { key: "teams", label: "Team Rankings" },
+  { id: "overall", label: "Overall Rankings" },
+  { id: "events", label: "Event Rankings" },
+  { id: "teams", label: "Team Rankings" },
 ];
 
-const columns: Column[] = [
-  { key: "rank", header: "Rank" },
-  { key: "name", header: "Name" },
-  { key: "country", header: "Country" },
-  {
-    key: "points",
-    header: "Points",
-    render: (value: number) => <span className="font-bold text-weed-primary">{value}</span>,
-  },
-  {
-    key: "trend",
-    header: "Trend",
-    render: (value: string) => {
-      const color = value === "up" ? "text-green-500" : value === "down" ? "text-red-500" : "text-gray-500";
-      const arrow = value === "up" ? "↑" : value === "down" ? "↓" : "−";
-      return <span className={`${color} font-bold`}>{arrow}</span>;
-    },
-  },
-];
-
-const mockData = {
-  stats: {
-    activeParticipants: "256",
-    countriesRepresented: "32",
-    topScore: "2,850",
-  },
-  rankings: [
-    { rank: 1, name: "John Doe", country: "Blazeland", points: 2850, trend: "up" },
-    { rank: 2, name: "Jane Smith", country: "Tokeville", points: 2750, trend: "up" },
-    { rank: 3, name: "Mike Johnson", country: "Ganjapolis", points: 2600, trend: "down" },
-    { rank: 4, name: "Sarah Williams", country: "Hempshire", points: 2500, trend: "same" },
-    { rank: 5, name: "Tom Brown", country: "Weedington", points: 2400, trend: "up" },
-  ],
+type LeaderboardColumn = {
+  header: string;
+  accessor: keyof LeaderboardData;
+  render?: (value: LeaderboardData[keyof LeaderboardData], row: LeaderboardData) => React.ReactNode;
 };
 
-const LiveLeaderboards: React.FC = () => {
+const columns: LeaderboardColumn[] = [
+  {
+    header: "Rank",
+    accessor: "rank",
+  },
+  {
+    header: "Name",
+    accessor: "name",
+  },
+  {
+    header: "Score",
+    accessor: "score",
+    render: value => <span className="font-bold text-primary">{value as number}</span>,
+  },
+  {
+    header: "Events",
+    accessor: "totalEvents",
+  },
+  {
+    header: "Medals",
+    accessor: "medals",
+    render: value => (
+      <div className="flex items-center gap-1">
+        <FaTrophy className="text-yellow-500" />
+        <span>{value as number}</span>
+      </div>
+    ),
+  },
+];
+
+export const LiveLeaderboards: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overall");
-  const [isLoading] = useState(false);
+  const { participants, isLoading, error } = useParticipants();
 
   if (isLoading) {
     return <LoadingState message="Loading live leaderboards..." />;
   }
+
+  if (error) {
+    return <div className="text-center text-red-500">Error loading leaderboard data: {error.message}</div>;
+  }
+
+  const leaderboardData: LeaderboardData[] = (participants || [])
+    .map((participant, index) => ({
+      ...participant,
+      rank: index + 1,
+      score: participant.goldMedals * 3 + participant.silverMedals * 2 + participant.bronzeMedals,
+      medals: participant.goldMedals + participant.silverMedals + participant.bronzeMedals,
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  const stats = [
+    {
+      id: "1",
+      title: "Total Participants",
+      label: "Total Active Participants",
+      value: participants?.length || 0,
+    },
+    {
+      id: "2",
+      title: "Active Events",
+      label: "Currently Running Events",
+      value: "5", // TODO: Get from events data
+    },
+    {
+      id: "3",
+      title: "Total Medals",
+      label: "Medals Awarded",
+      value: leaderboardData.reduce((sum, p) => sum + p.medals, 0),
+    },
+  ];
 
   return (
     <PageContainer title="Live Leaderboards" description="Real-time rankings and standings from the Blunt Olympics">
@@ -60,15 +110,26 @@ const LiveLeaderboards: React.FC = () => {
         <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DataCard title="Active Participants" value={mockData.stats.activeParticipants} icon={<FaUsers />} />
-          <DataCard title="Countries" value={mockData.stats.countriesRepresented} icon={<FaGlobe />} />
-          <DataCard title="Top Score" value={mockData.stats.topScore} icon={<FaTrophy />} />
+          {stats.map(stat => (
+            <DataCard
+              key={stat.id}
+              title={stat.title}
+              value={stat.value}
+              icon={
+                stat.label.includes("Total") ? (
+                  <FaUsers />
+                ) : stat.label.includes("Countries") ? (
+                  <FaGlobe />
+                ) : (
+                  <FaTrophy />
+                )
+              }
+            />
+          ))}
         </div>
 
-        <DataTable columns={columns} data={mockData.rankings} className="mt-6" />
+        <DataTable<LeaderboardData> columns={columns} data={leaderboardData} className="mt-6" />
       </div>
     </PageContainer>
   );
 };
-
-export default LiveLeaderboards;

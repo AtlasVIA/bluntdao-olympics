@@ -3,26 +3,26 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
-  children: React.ReactNode;
+  stat: string;
+  description: string;
   className?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, children, className = "" }) => {
+export const StatCard: React.FC<StatCardProps> = ({ title, stat, description, className = "" }) => {
   return (
     <motion.div
-      className={`card hover-lift ${className}`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      className={`card bg-base-200 shadow-xl ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h2 className="text-xl font-semibold mb-4 text-weed-primary">{title}</h2>
-      <div className="text-foreground">{children}</div>
+      <div className="card-body">
+        <h2 className="card-title text-lg">{title}</h2>
+        <p className="text-4xl font-bold">{stat}</p>
+        <p className="text-base-content/70 text-sm">{description}</p>
+      </div>
     </motion.div>
   );
 };
-
-export default StatCard;

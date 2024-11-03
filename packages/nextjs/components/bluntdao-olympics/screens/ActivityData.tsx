@@ -1,68 +1,106 @@
 "use client";
 
-import React, { useState } from "react";
-import { DataCard, DataTable, LoadingState, PageContainer, TabGroup } from "../common";
-import type { Column, Tab } from "../common";
-import { FaFire, FaMedal, FaTrophy } from "react-icons/fa";
+import React from "react";
+import { DataTable, PageContainer, StatCard } from "../common";
+import { useEvents } from "../hooks";
+import { EVENT_STATUS, type Event, type EventStatus, fromSolidityTimestamp } from "../types";
+import { useAccount } from "wagmi";
 
-const tabs: Tab[] = [
-  { key: "all", label: "All Activities" },
-  { key: "competitive", label: "Competitive Events" },
-  { key: "recreational", label: "Recreational Events" },
-];
-
-const columns: Column[] = [
-  { key: "rank", header: "Rank" },
-  { key: "event", header: "Event" },
-  {
-    key: "performance",
-    header: "Performance",
-    render: (value: string | number) => <span className="font-medium text-weed-primary">{value}</span>,
-  },
-  { key: "participant", header: "Participant" },
-];
-
-const mockData = {
-  stats: {
-    totalParticipants: "156",
-    averageScore: "8.7/10",
-    topEvent: "3-Point Contest",
-  },
-  activities: [
-    { rank: 1, event: "3-Point Contest", performance: "28 points", participant: "John Doe" },
-    { rank: 2, event: "Half-Court Shots", performance: "5 shots", participant: "Jane Smith" },
-    { rank: 3, event: "Muay Thai & Toke Off", performance: "9.5/10", participant: "Mike Johnson" },
-    { rank: 4, event: "Skateboarding Tricks", performance: "95 points", participant: "Sarah Williams" },
-    { rank: 5, event: "Highest Ollie", performance: "1.2m", participant: "Tom Brown" },
-  ],
-};
-
-const ActivityData: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("all");
-  const [isLoading] = useState(false);
+export const ActivityData = () => {
+  const { isConnected } = useAccount();
+  const { events, isLoading } = useEvents();
 
   if (isLoading) {
-    return <LoadingState message="Loading activity data..." />;
+    return (
+      <PageContainer title="Loading" description="Loading activity data">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      </PageContainer>
+    );
   }
+
+  const activeEvents = events?.filter(e => e.status === EVENT_STATUS.IN_PROGRESS) || [];
+  const completedEvents = events?.filter(e => e.status === EVENT_STATUS.COMPLETED) || [];
+  const upcomingEvents = events?.filter(e => e.status === EVENT_STATUS.UPCOMING) || [];
+
+  const columns = [
+    {
+      header: "Event Name",
+      accessor: "name" as keyof Event,
+    },
+    {
+      header: "Status",
+      accessor: "status" as keyof Event,
+      render: (value: Event[keyof Event]) => {
+        const status = value as EventStatus;
+        const statusClasses: Record<EventStatus, string> = {
+          [EVENT_STATUS.IN_PROGRESS]: "text-green-500",
+          [EVENT_STATUS.COMPLETED]: "text-blue-500",
+          [EVENT_STATUS.UPCOMING]: "text-yellow-500",
+          [EVENT_STATUS.CANCELLED]: "text-red-500",
+        };
+        const statusText: Record<EventStatus, string> = {
+          [EVENT_STATUS.IN_PROGRESS]: "IN PROGRESS",
+          [EVENT_STATUS.COMPLETED]: "COMPLETED",
+          [EVENT_STATUS.UPCOMING]: "UPCOMING",
+          [EVENT_STATUS.CANCELLED]: "CANCELLED",
+        };
+        return <span className={statusClasses[status]}>{statusText[status]}</span>;
+      },
+    },
+    {
+      header: "Description",
+      accessor: "description" as keyof Event,
+    },
+    {
+      header: "Start Time",
+      accessor: "startTime" as keyof Event,
+      render: (value: Event[keyof Event]) => {
+        const time = value as bigint;
+        return fromSolidityTimestamp(time).toLocaleString();
+      },
+    },
+    {
+      header: "End Time",
+      accessor: "endTime" as keyof Event,
+      render: (value: Event[keyof Event]) => {
+        const time = value as bigint;
+        return fromSolidityTimestamp(time).toLocaleString();
+      },
+    },
+  ];
 
   return (
     <PageContainer
-      title="Activity Data"
-      description="Detailed performance data from various Blunt Olympics events and competitions"
+      title="Blunt Olympics Activity Data"
+      description="Track all events and competitions in the Blunt Olympics"
     >
       <div className="space-y-8">
-        <TabGroup tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} className="mb-6" />
-
+        {/* Activity Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DataCard title="Total Participants" value={mockData.stats.totalParticipants} icon={<FaTrophy />} />
-          <DataCard title="Average Score" value={mockData.stats.averageScore} icon={<FaMedal />} />
-          <DataCard title="Most Popular Event" value={mockData.stats.topEvent} icon={<FaFire />} />
+          <StatCard title="Active Events" stat={activeEvents.length.toString()} description="Currently in progress" />
+          <StatCard
+            title="Completed Events"
+            stat={completedEvents.length.toString()}
+            description="Successfully finished"
+          />
+          <StatCard title="Upcoming Events" stat={upcomingEvents.length.toString()} description="Scheduled to start" />
         </div>
 
-        <DataTable columns={columns} data={mockData.activities} className="mt-6" />
+        {/* Events Table */}
+        <div className="bg-base-200 p-6 rounded-lg">
+          <h2 className="text-2xl font-bold mb-4">Event History</h2>
+          <DataTable<Event> data={events || []} columns={columns} />
+        </div>
+
+        {!isConnected && (
+          <div className="text-center mt-8 p-6 bg-base-200 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">Join the Blunt Olympics!</h2>
+            <p className="text-lg">Connect your wallet to participate in events and track your activities.</p>
+          </div>
+        )}
       </div>
     </PageContainer>
   );
 };
-
-export default ActivityData;

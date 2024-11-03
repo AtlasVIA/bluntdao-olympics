@@ -1,29 +1,29 @@
-"use client";
-
-import React from "react";
-import { motion } from "framer-motion";
+import { ReactNode } from "react";
+import Link from "next/link";
 
 interface TabButtonProps {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
+  isActive?: boolean;
+  href?: string;
+  onClick?: () => void;
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ active, onClick, children }) => {
+export const TabButton = ({ children, isActive, href, onClick }: TabButtonProps) => {
+  const className = `px-4 py-2 rounded-lg font-medium transition-colors ${
+    isActive ? "bg-primary text-primary-content" : "hover:bg-base-200"
+  }`;
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <motion.button
-      className={`px-6 py-3 mr-2 rounded-t-lg font-semibold transition-colors duration-200 ${
-        active
-          ? "bg-[rgb(var(--primary-green))] text-white"
-          : "bg-weed-light dark:bg-weed-dark text-weed-secondary hover:bg-[rgb(var(--accent-green))] hover:text-white"
-      }`}
-      onClick={onClick}
-      whileHover={{ y: -2 }}
-      whileTap={{ y: 0 }}
-    >
+    <button onClick={onClick} className={className}>
       {children}
-    </motion.button>
+    </button>
   );
 };
-
-export default TabButton;

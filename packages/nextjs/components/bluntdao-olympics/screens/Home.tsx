@@ -1,139 +1,170 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
-import { PageContainer } from "../common";
-import { motion } from "framer-motion";
-import { FaCalendarAlt, FaChartBar, FaFire, FaLeaf, FaMedal, FaTrophy } from "react-icons/fa";
+import { LoadingState, PageContainer, StatCard } from "../common";
+import { useConsumption, useEvents, useParticipants } from "../hooks";
+import { EVENT_STATUS, type Event } from "../types";
+import { useAccount } from "wagmi";
 
-interface FeatureCard {
-  href: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  stats?: {
-    value: string;
-    label: string;
+export const Home = () => {
+  const { address, isConnected } = useAccount();
+  const { participants, isLoading: participantsLoading, error: participantsError } = useParticipants();
+  const { events, isLoading: eventsLoading, error: eventsError } = useEvents();
+  const { globalStats, topStrains, isLoading: consumptionLoading, error: consumptionError } = useConsumption();
+
+  const isLoading = participantsLoading || eventsLoading || consumptionLoading;
+  const error = participantsError || eventsError || consumptionError;
+
+  if (isLoading) {
+    return (
+      <PageContainer title="Loading" description="Loading data">
+        <LoadingState message="Loading Blunt Olympics data..." />
+      </PageContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageContainer title="Error" description="Failed to load data">
+        <div className="text-error text-center p-8">Error loading data: {error.message}</div>
+      </PageContainer>
+    );
+  }
+
+  const userStats =
+    isConnected && address && participants
+      ? participants.find(p => p.participantAddress.toLowerCase() === address.toLowerCase())
+      : null;
+
+  const upcomingEvents = events
+    ?.filter((e: Event) => e.status === EVENT_STATUS.UPCOMING)
+    .sort((a: Event, b: Event) => Number(a.startTime - b.startTime))
+    .slice(0, 3);
+
+  const activeEvents = events?.filter((e: Event) => e.status === EVENT_STATUS.IN_PROGRESS);
+
+  const calculateTimeRemaining = (timestamp: bigint, type: "start" | "end"): string => {
+    const now = BigInt(Math.floor(Date.now() / 1000));
+    const diff = Number(type === "start" ? timestamp - now : timestamp - now);
+    const hours = Math.floor(diff / 3600);
+
+    if (hours < 24) {
+      return `${hours} hours`;
+    } else {
+      const days = Math.floor(hours / 24);
+      return `${days} days`;
+    }
   };
-}
-
-const Home: React.FC = () => {
-  const featureCards: FeatureCard[] = [
-    {
-      href: "/medal-tally",
-      title: "Medal Tally",
-      description: "View the breakdown of medals by event and country",
-      icon: <FaMedal className="text-3xl" />,
-      stats: {
-        value: "156",
-        label: "Medals Awarded",
-      },
-    },
-    {
-      href: "/leaderboard",
-      title: "Leaderboard",
-      description: "Comprehensive leaderboards including country rankings and stats",
-      icon: <FaTrophy className="text-3xl" />,
-      stats: {
-        value: "32",
-        label: "Countries",
-      },
-    },
-    {
-      href: "/consumption-stats",
-      title: "Consumption Stats",
-      description: "View statistics on cannabis consumption during the events",
-      icon: <FaLeaf className="text-3xl" />,
-      stats: {
-        value: "420kg",
-        label: "Total Consumption",
-      },
-    },
-    {
-      href: "/activity-data",
-      title: "Activity Data",
-      description: "Explore detailed data for each competition",
-      icon: <FaChartBar className="text-3xl" />,
-      stats: {
-        value: "24",
-        label: "Events",
-      },
-    },
-    {
-      href: "/popular-activities",
-      title: "Activities",
-      description: "Discover the most engaging sesh activities",
-      icon: <FaFire className="text-3xl" />,
-      stats: {
-        value: "1.2K",
-        label: "Participants",
-      },
-    },
-  ];
 
   return (
     <PageContainer
-      title="Blunt Olympics"
-      description="Welcome to the Blunt Olympics - Where High Scores Meet Higher Times!"
+      title={isConnected ? "Your Blunt Olympics Dashboard" : "Blunt Olympics Overview"}
+      description="Real-time statistics from the Blunt Olympics"
     >
       <div className="space-y-8">
-        <motion.div
-          className="flex justify-center mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <a
-            href="https://olympics.bluntdao.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary btn-lg gap-2 text-xl px-8 py-4 flex items-center hover-lift"
-          >
-            <FaCalendarAlt className="text-2xl" />
-            Join the Olympics on Lu.ma
-          </a>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featureCards.map((card, index) => (
-            <motion.div
-              key={card.href}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Link href={card.href}>
-                <div className="card hover-lift h-full">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="text-weed-primary">{card.icon}</div>
-                    <h2 className="text-2xl font-semibold text-weed-primary dark:text-weed-light">{card.title}</h2>
+        {/* Active Events Section */}
+        {activeEvents && activeEvents.length > 0 && (
+          <div className="bg-base-200 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">🔥 Live Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {activeEvents.map((event: Event) => (
+                <div key={event.eventId} className="card bg-base-100 shadow-xl">
+                  <div className="card-body">
+                    <h3 className="card-title text-primary">{event.name}</h3>
+                    <p className="text-sm">{event.description}</p>
+                    <p className="text-sm opacity-70">Ends in {calculateTimeRemaining(event.endTime, "end")}</p>
                   </div>
-                  <p className="text-weed-secondary dark:text-weed-light mb-4">{card.description}</p>
-                  {card.stats && (
-                    <div className="mt-auto pt-4 border-t border-weed-light dark:border-weed-dark">
-                      <div className="text-2xl font-bold text-weed-primary">{card.stats.value}</div>
-                      <div className="text-sm text-weed-secondary">{card.stats.label}</div>
-                    </div>
-                  )}
                 </div>
-              </Link>
-            </motion.div>
-          ))}
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isConnected && userStats ? (
+            <>
+              <StatCard
+                title="Your Events"
+                stat={userStats.totalEvents.toString()}
+                description="Total events participated in"
+              />
+              <StatCard
+                title="Total Medals"
+                stat={(userStats.goldMedals + userStats.silverMedals + userStats.bronzeMedals).toString()}
+                description={`${userStats.goldMedals} Gold, ${userStats.silverMedals} Silver, ${userStats.bronzeMedals} Bronze`}
+              />
+              <StatCard
+                title="Participation Rate"
+                stat={`${Math.round((userStats.totalEvents / (events?.length || 1)) * 100)}%`}
+                description="Events you've participated in"
+              />
+            </>
+          ) : (
+            <>
+              <StatCard
+                title="Total Participants"
+                stat={participants?.length.toString() || "0"}
+                description="Active participants"
+              />
+              <StatCard
+                title="Total Consumption"
+                stat={`${globalStats?.totalGrams || 0}g`}
+                description="Across all events"
+              />
+              <StatCard
+                title="Active Events"
+                stat={(activeEvents?.length || 0).toString()}
+                description="Currently running events"
+              />
+            </>
+          )}
         </div>
 
-        <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <p className="text-weed-secondary dark:text-weed-light text-lg">
-            Join thousands of participants from around the world in this unique celebration of community and culture.
-          </p>
-        </motion.div>
+        {/* Upcoming Events Section */}
+        {upcomingEvents && upcomingEvents.length > 0 && (
+          <div className="bg-base-200 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">🗓️ Upcoming Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingEvents.map((event: Event) => (
+                <div key={event.eventId} className="card bg-base-100 shadow-xl">
+                  <div className="card-body">
+                    <h3 className="card-title text-primary">{event.name}</h3>
+                    <p className="text-sm">{event.description}</p>
+                    <p className="text-sm opacity-70">Starts in {calculateTimeRemaining(event.startTime, "start")}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Top Strains Section */}
+        {topStrains && topStrains.length > 0 && (
+          <div className="bg-base-200 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">🌿 Top Strains</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {topStrains.map(strain => (
+                <div key={strain.name} className="card bg-base-100 shadow-xl">
+                  <div className="card-body">
+                    <h3 className="card-title text-sm">{strain.name}</h3>
+                    <p className="text-2xl font-bold">{strain.usageCount}</p>
+                    <p className="text-xs opacity-70">times used</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!isConnected && (
+          <div className="text-center mt-8 p-6 bg-base-200 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">Join the Blunt Olympics!</h2>
+            <p className="text-lg">
+              Connect your wallet to start participating and tracking your personal achievements.
+            </p>
+          </div>
+        )}
       </div>
     </PageContainer>
   );
 };
-
-export default Home;
